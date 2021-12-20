@@ -8,8 +8,8 @@ interface IHybridRouter {
     function buyWithToken(
         uint amountOffer,
         uint price,
-        address baseToken,
-        address quoteToken,
+        address tokenA,
+        address tokenB,
         address to,
         uint deadline)
         external
@@ -18,8 +18,7 @@ interface IHybridRouter {
     //创建eth买token限价单
     function buyWithEth(
         uint price,
-        address baseToken,
-        address quoteToken,
+        address tokenA,
         address to,
         uint deadline)
         external
@@ -30,8 +29,8 @@ interface IHybridRouter {
     function sellToken(
         uint amountOffer,
         uint price,
-        address baseToken,
-        address quoteToken,
+        address tokenA,
+        address tokenB,
         address to,
         uint deadline)
         external
@@ -40,11 +39,35 @@ interface IHybridRouter {
     //创建eth卖为token限价单
     function sellEth(
         uint price,
-        address baseToken,
-        address quoteToken,
+        address tokenB,
         address to,
         uint deadline)
         external
         payable
         returns (uint);
+
+    function getAmountsForBuy(
+        uint amountOffer,
+        uint price,
+        address tokenA,
+        address tokenB)
+    external view
+    returns (uint[] memory amounts);
+
+    function getAmountsForSell(
+        uint amountOffer,
+        uint price,
+        address tokenA,
+        address tokenB)
+    external view
+    returns (uint[] memory amounts);
+
+    function getOrderBook(
+        address tokenA,
+        address tokenB,
+        uint32 limitSize)
+    external view
+    returns
+    (uint price, uint[] memory buyPrices, uint[] memory buyAmounts, uint[] memory sellPrices, uint[] memory
+        sellAmounts);
 }
