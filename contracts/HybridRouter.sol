@@ -148,11 +148,12 @@ contract HybridRouter is IHybridRouter {
     internal
     view
     returns (uint[] memory amounts) {
-        uint orderDirection = ~tradeDirection;
+        uint orderDirection = OrderBookLibrary.getOppositeDirection(tradeDirection);
         //获取价格范围内的反方向挂单
         (uint[] memory priceArray, uint[] memory amountArray) = IOrderBook(orderBook).rangeBook(orderDirection, price);
         uint decimal = IOrderBook(orderBook).priceDecimal();
         uint amountLeft = amountOffer;
+        amounts = new uint[](5);
 
         //看看是否需要吃单
         for (uint i=0; i<priceArray.length; i++){
@@ -178,10 +179,11 @@ contract HybridRouter is IHybridRouter {
 
 
         //计算消耗掉一个价格的挂单需要的amountIn数量
-        (uint amountInForTake, uint amountOutWithFee) = OrderBookLibrary.getAmountOutForTakePrice(
+        (uint amountInForTake, uint amountOutWithFee, uint fee) = OrderBookLibrary.getAmountOutForTakePrice(
             orderDirection, amountLeft, priceArray[i], decimal, amountArray[i]);
             amounts[3] += amountInForTake;
             amounts[4] += amountOutWithFee;
+            amounts[5] += fee;
             if (amountLeft > amountInForTake) {
                 amountLeft = amountLeft - amountInForTake;
             }
@@ -209,7 +211,7 @@ contract HybridRouter is IHybridRouter {
     //需要考虑初始价格到目标价格之间还有其它挂单的情况，需要考虑最小数量
     function getAmountsForBuy(uint amountOffer, uint price, address baseToken, address quoteToken)
     external view
-    returns (uint[] memory amounts) { //返回ammAmountIn, ammAmountOut, orderAmountIn, orderAmountOut
+    returns (uint[] memory amounts) { //返回ammAmountIn, ammAmountOut, orderAmountIn, orderAmountOut, fee
         require(baseToken != quoteToken, 'HybridRouter: Invalid_Path');
         address orderBook = IOrderBookFactory(factory).getOrderBook(baseToken, quoteToken);
         require(orderBook != address(0), 'HybridRouter: Invalid_OrderBook');
