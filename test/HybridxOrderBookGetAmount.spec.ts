@@ -124,20 +124,23 @@ describe('HybridxOrderBook', () => {
     console.log("reserve base:", reserves[0].toString())
     console.log("reserve quote:", reserves[1].toString())
 
-    let amountOutRet = await orderBook.getAmountOutForMovePrice(tokenBase.address, limitAmount, reserves[0], reserves[1])
-    console.log("amountOutGet:", amountOutRet[0].toString());
-    //10875417928714590749 == 2925820234006285945 + (expandTo18Decimals(10) - 2074179765993714053) * 0.997 * 1
-    console.log("amountInLeft:", amountOutRet[1].toString());
-    console.log("reserveInRet:", amountOutRet[2].toString());
-    console.log("reserveOutRet:", amountOutRet[3].toString());
+    let amountOffer = bigNumberify("1000000000000000000")
+    let price = bigNumberify("1000000000000000000")
+    let results = await hybridRouter.getAmountsForBuy(amountOffer, price, tokenBase.address, tokenQuote.address)
+    console.log("amm amount in:", results[0].toString())
+    console.log("amm amount out:", results[1].toString())
+    console.log("order amount in:", results[2].toString())
+    console.log("order amount out:", results[3].toString())
+    console.log("order fee:", results[4].toString())
 
-    const price = bigNumberify("1000000000000000000")
-    const decimal = 18
-    let results = await orderBook.getAmountForMovePrice(2, reserves[0], reserves[1], price, decimal)
-    console.log("amount base:", results[0].toString())
-    console.log("amount quote:", results[1].toString())
-    console.log("reserve base:", results[2].toString())
-    console.log("reserve quote:", results[3].toString())
+    amountOffer = bigNumberify("1000000000000000000")
+    price = bigNumberify("1000000000000000000")
+    results = await hybridRouter.getAmountsForSell(amountOffer, price, tokenBase.address, tokenQuote.address)
+    console.log("amm amount in:", results[0].toString())
+    console.log("amm amount out:", results[1].toString())
+    console.log("order amount in:", results[2].toString())
+    console.log("order amount out:", results[3].toString())
+    console.log("order fee:", results[4].toString())
   })
 
   //实际情况不存在start price < buy limit order price的情况
