@@ -25,21 +25,15 @@ library HybridLibrary {
         for (uint i=0; i<priceArray.length; i++) {
             uint amountBaseUsed;
             uint amountQuoteUsed;
-            uint amountOutLeft = OrderBookLibrary.getAmountOut(amountInLeft, reserveQuote, reserveBase);
             //先计算pair从当前价格到price消耗amountIn的数量
-            (amountBaseUsed, amountQuoteUsed, reserveBase, reserveQuote) = OrderBookLibrary.getAmountForMovePrice(
-                OrderBookLibrary.LIMIT_BUY, reserveBase, reserveQuote, priceArray[i], decimal);
-            if (amountQuoteUsed > amountInLeft) {
-                (amountBaseUsed, amountQuoteUsed) = (amountOutLeft, amountInLeft);
-                (reserveBase, reserveQuote) = (reserveBase.sub(amountBaseUsed), reserveQuote.add(amountQuoteUsed));
-            }
+            (amountInLeft, amountBaseUsed, amountQuoteUsed, reserveBase, reserveQuote) =
+                OrderBookLibrary.getAmountForMovePriceWithAmountIn(
+                OrderBookLibrary.LIMIT_BUY, amountInLeft, reserveBase, reserveQuote, priceArray[i], decimal);
 
             //再计算amm中实际会消耗的amountQuote的数量
             amounts[1] += amountQuoteUsed;
             //再计算本次移动价格获得的amountBase
             amounts[0] += amountBaseUsed;
-            //再计算还剩下的amountQuote
-            amountInLeft = amountInLeft - amountQuoteUsed;
             if (amountInLeft == 0) {
                 break;
             }
@@ -62,21 +56,15 @@ library HybridLibrary {
         if (priceArray.length > 0 && price > priceArray[priceArray.length-1] && amountInLeft > 0) {
             uint amountBaseUsed;
             uint amountQuoteUsed;
-            uint amountOutLeft = OrderBookLibrary.getAmountOut(amountInLeft, reserveQuote, reserveBase);
             //先计算pair从当前价格到price消耗amountIn的数量
-            (amountBaseUsed, amountQuoteUsed, reserveBase, reserveQuote) = OrderBookLibrary.getAmountForMovePrice(
-                OrderBookLibrary.LIMIT_BUY, reserveBase, reserveQuote, price, decimal);
-            if (amountQuoteUsed > amountInLeft) {
-                (amountBaseUsed, amountQuoteUsed) = (amountOutLeft, amountInLeft);
-                (reserveBase, reserveQuote) = (reserveBase.sub(amountBaseUsed), reserveQuote.add(amountQuoteUsed));
-            }
+            (amountInLeft, amountBaseUsed, amountQuoteUsed, reserveBase, reserveQuote) =
+                OrderBookLibrary.getAmountForMovePriceWithAmountIn(
+                OrderBookLibrary.LIMIT_BUY, amountInLeft, reserveBase, reserveQuote, price, decimal);
 
             //再计算amm中实际会消耗的amountQuote的数量
             amounts[1] += amountQuoteUsed;
             //再计算本次移动价格获得的amountBase
             amounts[0] += amountBaseUsed;
-            //再计算还剩下的amountQuote
-            amountInLeft = amountInLeft - amountQuoteUsed;
         }
 
         if (amounts[1] > 0 && amountInLeft > 0) {
@@ -114,17 +102,11 @@ library HybridLibrary {
         for (uint i=0; i<priceArray.length; i++) {
             uint amountBaseUsed;
             uint amountQuoteUsed;
-            uint amountOutLeft = OrderBookLibrary.getAmountOut(amountInLeft, reserveBase, reserveQuote);
-            (amountBaseUsed, amountQuoteUsed, reserveBase, reserveQuote) = OrderBookLibrary.getAmountForMovePrice(
-                OrderBookLibrary.LIMIT_SELL, reserveBase, reserveQuote, priceArray[i], decimal);
-            if (amountBaseUsed > amountInLeft) {
-                (amountBaseUsed, amountQuoteUsed) = (amountInLeft, amountOutLeft);
-                (reserveBase, reserveQuote) = (reserveBase.add(amountBaseUsed), reserveQuote.sub(amountQuoteUsed));
-            }
-
+            (amountInLeft, amountBaseUsed, amountQuoteUsed, reserveBase, reserveQuote) =
+                OrderBookLibrary.getAmountForMovePriceWithAmountIn(
+                OrderBookLibrary.LIMIT_SELL, amountInLeft, reserveBase, reserveQuote, priceArray[i], decimal);
             amounts[0] += amountBaseUsed;
             amounts[1] += amountQuoteUsed;
-            amountInLeft = amountInLeft - amountBaseUsed;
 
             //再计算还剩下的amountIn
             if (amountInLeft == 0) {
@@ -149,17 +131,11 @@ library HybridLibrary {
         if (priceArray.length > 0 && price < priceArray[priceArray.length-1] && amountInLeft > 0){
             uint amountBaseUsed;
             uint amountQuoteUsed;
-            uint amountOutLeft = OrderBookLibrary.getAmountOut(amountInLeft, reserveBase, reserveQuote);
-            (amountBaseUsed, amountQuoteUsed, reserveBase, reserveQuote) = OrderBookLibrary.getAmountForMovePrice(
-                OrderBookLibrary.LIMIT_SELL, reserveBase, reserveQuote, price, decimal);
-            if (amountBaseUsed > amountInLeft) {
-                (amountBaseUsed, amountQuoteUsed) = (amountInLeft, amountOutLeft);
-                (reserveBase, reserveQuote) = (reserveBase.add(amountBaseUsed), reserveQuote.sub(amountQuoteUsed));
-            }
-
+            (amountInLeft, amountBaseUsed, amountQuoteUsed, reserveBase, reserveQuote) =
+            OrderBookLibrary.getAmountForMovePriceWithAmountIn(
+                OrderBookLibrary.LIMIT_SELL, amountInLeft, reserveBase, reserveQuote, price, decimal);
             amounts[0] += amountBaseUsed;
             amounts[1] += amountQuoteUsed;
-            amountInLeft = amountInLeft - amountBaseUsed;
         }
 
         if (amounts[0] > 0 && amountInLeft > 0) {
