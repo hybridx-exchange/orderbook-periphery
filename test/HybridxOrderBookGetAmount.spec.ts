@@ -46,70 +46,13 @@ describe('HybridxOrderBook', () => {
     tokenQuote = fixture.tokenB
   })
 
-  /*it('getAmountOutForMovePrice down:no buy limit order price', async () => {
-    await factory.setOrderBookFactory(orderBookFactory.address);
-    console.log("price before:", (await orderBook.getPrice()).toString())
-    const minAmount = await orderBook.minAmount()
-    console.log("minAmount:", minAmount.toString())
-
-    let limitAmount = expandTo18Decimals(1)
-    console.log("limitAmount:", limitAmount.toString())
-
-    await tokenQuote.transfer(orderBook.address, limitAmount)
-    await orderBook.createBuyLimitOrder(wallet.address, expandTo18Decimals(3), wallet.address)
-
-    let order = await orderBook.marketOrders(1);
-    printOrder(order)
-    console.log("user orders:", await orderBook.getUserOrders(wallet.address))
-    console.log("price after:", (await orderBook.getPrice()).toString())
-
-    let reserves = await orderBook.getReserves()
-    console.log("reserve base:", reserves[0].toString())
-    console.log("reserve quote:", reserves[1].toString())
-
-    let amountOutRet = await orderBook.getAmountOutForMovePrice(tokenBase.address, limitAmount, reserves[0], reserves[1])
-    console.log("amountOutGet:", amountOutRet[0].toString());
-    console.log("amountInLeft:", amountOutRet[1].toString());
-    console.log("reserveInRet:", amountOutRet[2].toString());
-    console.log("reserveOutRet:", amountOutRet[3].toString());
-  })*/
-
-  /*it('getAmountOutForMovePrice down:start price == buy limit order price', async () => {
-    await factory.setOrderBookFactory(orderBookFactory.address);
-    console.log("price before:", (await orderBook.getPrice()).toString())
-    const minAmount = await orderBook.minAmount()
-    console.log("minAmount:", minAmount.toString())
-
-    let limitAmount = expandTo18Decimals(10)
-    console.log("limitAmount:", limitAmount.toString())
-
-    await tokenQuote.transfer(orderBook.address, limitAmount)
-    await orderBook.createBuyLimitOrder(wallet.address, expandTo18Decimals(3), wallet.address)
-
-    let order = await orderBook.marketOrders(1);
-    printOrder(order)
-    console.log("user orders:", await orderBook.getUserOrders(wallet.address))
-    console.log("price after:", (await orderBook.getPrice()).toString())
-
-    let reserves = await orderBook.getReserves()
-    console.log("reserve base:", reserves[0].toString())
-    console.log("reserve quote:", reserves[1].toString())
-
-    limitAmount = bigNumberify("7749174582596444639")//expandTo18Decimals(1)
-    let amountOutRet = await orderBook.getAmountOutForMovePrice(tokenBase.address, limitAmount, reserves[0], reserves[1])
-    console.log("amountOutGet:", amountOutRet[0].toString());
-    console.log("amountInLeft:", amountOutRet[1].toString());
-    console.log("reserveInRet:", amountOutRet[2].toString());
-    console.log("reserveOutRet:", amountOutRet[3].toString());
-  })*/
-
   it('getAmountOutForMovePrice down:start price > buy limit order price', async () => {
     await factory.setOrderBookFactory(orderBookFactory.address);
     console.log("price before:", (await orderBook.getPrice()).toString())
     const minAmount = await orderBook.minAmount()
     console.log("minAmount:", minAmount.toString())
 
-    let limitAmount = expandTo18Decimals(10)
+    let limitAmount = expandTo18Decimals(1)
     console.log("limitAmount:", limitAmount.toString())
 
     await tokenQuote.transfer(orderBook.address, limitAmount)
@@ -132,6 +75,8 @@ describe('HybridxOrderBook', () => {
     console.log("order amount in:", results[2].toString())
     console.log("order amount out:", results[3].toString())
     console.log("order fee:", results[4].toString())
+    console.log("order amount left:", results[5].toString())
+    console.log("price to:", results[6].toString())
 
     amountOffer = bigNumberify("1000000000000000000")
     price = bigNumberify("1000000000000000000")
@@ -141,6 +86,9 @@ describe('HybridxOrderBook', () => {
     console.log("order amount in:", results[2].toString())
     console.log("order amount out:", results[3].toString())
     console.log("order fee:", results[4].toString())
+    console.log("order amount left:", results[5].toString())
+    console.log("price to:", results[6].toString())
+    console.log("price after:", (reserves[1].sub(results[1])).mul(bigNumberify("1000000000000000000")).div(reserves[0].add(results[0])).toString())
   })
 
   //实际情况不存在start price < buy limit order price的情况
