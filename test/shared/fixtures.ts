@@ -10,7 +10,7 @@ import UniswapV2Pair from '@hybridx-exchange/v2-core/build/UniswapV2Pair.json'
 import OrderBookFactory from '@hybridx-exchange/orderbook-core/build/OrderBookFactory.json'
 import OrderBook from '@hybridx-exchange/orderbook-core/build/OrderBook.json'
 import WETH from '@hybridx-exchange/orderbook-core/build/WETH9.json'
-import HybridRouter from '../../build/HybridRouter.json'
+import HybridRouter from '../../build/HybridRouterTest.json'
 import {bigNumberify} from "ethers/utils";
 
 interface FactoryFixture {

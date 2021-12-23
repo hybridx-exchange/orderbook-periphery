@@ -10,6 +10,10 @@ import "@hybridx-exchange/orderbook-core/contracts/interfaces/IOrderBookFactory.
 import "./interfaces/IHybridRouter.sol";
 import "./libraries/HybridLibrary.sol";
 
+/**************************************************************************************************************
+@title                          router for hybrid order book
+@author                         https://twitter.com/cherideal
+**************************************************************************************************************/
 contract HybridRouter is IHybridRouter {
     address public immutable override factory;
     address public immutable override WETH;
@@ -133,7 +137,14 @@ contract HybridRouter is IHybridRouter {
         orderId = IOrderBook(orderBook).createSellLimitOrder(msg.sender, price, to);
     }
 
-    //需要考虑初始价格到目标价格之间还有其它挂单的情况，需要考虑最小数量
+    /**************************************************************************************************************
+    @param amountOffer             amount offered for limit order
+    @param price                   price of limit order
+    @param tokenA                  one token of order book
+    @param tokenB                  another token of order book
+    @return amounts                [amm amount in, amm amount out, order amount in, order amount out,
+                                    order fee, amount left, price to]
+    **************************************************************************************************************/
     function getAmountsForBuy(uint amountOffer, uint price, address tokenA, address tokenB)
     external
     virtual

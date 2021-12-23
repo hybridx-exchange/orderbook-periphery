@@ -5,6 +5,16 @@ import "@hybridx-exchange/orderbook-core/contracts/interfaces/IOrderBook.sol";
 
 library HybridLibrary {
     using SafeMath for uint;
+
+    /**************************************************************************************************************
+    @param orderBook               address of order book contract
+    @param amountOffer             amount offered for limit order
+    @param price                   price of limit order
+    @param reserveBase             reserve amount of base token
+    @param reserveQuote            reserve amount of quote token
+    @return amounts                [amm amount in, amm amount out, order amount in, order amount out,
+                                    order fee, amount left, price to]
+    **************************************************************************************************************/
     function getAmountsForBuyLimitOrder(
         address orderBook,
         uint amountOffer,
@@ -31,9 +41,9 @@ library HybridLibrary {
                 OrderBookLibrary.LIMIT_BUY, amountInLeft, reserveBase, reserveQuote, priceArray[i], decimal);
 
             //再计算amm中实际会消耗的amountQuote的数量
-            amounts[1] += amountQuoteUsed;
+            amounts[0] += amountQuoteUsed;
             //再计算本次移动价格获得的amountBase
-            amounts[0] += amountBaseUsed;
+            amounts[1] += amountBaseUsed;
             if (amountInLeft == 0) {
                 break;
             }
@@ -53,7 +63,7 @@ library HybridLibrary {
             }
         }
 
-        if (priceArray.length > 0 && price > priceArray[priceArray.length-1] && amountInLeft > 0) {
+        if (amountInLeft > 0 && (priceArray.length == 0 || price > priceArray[priceArray.length-1])) {
             uint amountBaseUsed;
             uint amountQuoteUsed;
             //先计算pair从当前价格到price消耗amountIn的数量
@@ -62,9 +72,9 @@ library HybridLibrary {
                 OrderBookLibrary.LIMIT_BUY, amountInLeft, reserveBase, reserveQuote, price, decimal);
 
             //再计算amm中实际会消耗的amountQuote的数量
-            amounts[1] += amountQuoteUsed;
+            amounts[0] += amountQuoteUsed;
             //再计算本次移动价格获得的amountBase
-            amounts[0] += amountBaseUsed;
+            amounts[1] += amountBaseUsed;
         }
 
         if (amounts[1] > 0 && amountInLeft > 0) {
@@ -128,7 +138,7 @@ library HybridLibrary {
             }
         }
 
-        if (priceArray.length > 0 && price < priceArray[priceArray.length-1] && amountInLeft > 0){
+        if (amountInLeft > 0 && (priceArray.length == 0 || price < priceArray[priceArray.length-1])){
             uint amountBaseUsed;
             uint amountQuoteUsed;
             (amountInLeft, amountBaseUsed, amountQuoteUsed, reserveBase, reserveQuote) =
