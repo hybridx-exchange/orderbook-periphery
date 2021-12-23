@@ -129,6 +129,14 @@ describe('HybridxOrderBook', () => {
     //limit price == end price > start price
     amountOffer = bigNumberify("10000000000000000000")
     price = expandTo18Decimals(3)
+
+    results = await hybridRouter.getAmountForMovePrice(bigNumberify("1"), amountOffer, reserves[0], reserves[1], price, bigNumberify("18"))
+    console.log("amount left:", results[0].toString())
+    console.log("amount base used:", results[1].toString())
+    console.log("amount quote used:", results[2].toString())
+    console.log("reserve base:", results[3].toString())
+    console.log("reserve quote:", results[4].toString())
+
     results = await hybridRouter.getAmountsForBuy(amountOffer, price, tokenBase.address, tokenQuote.address)
     console.log("amm amount in:", results[0].toString())
     console.log("amm amount out:", results[1].toString())
@@ -144,12 +152,12 @@ describe('HybridxOrderBook', () => {
     expect(results[4]).to.eq(bigNumberify("0")) //fee from order
     //expect(results[5]).to.eq(amountOffer.sub(results[0])) //amount left
     //price to = (quote reserve + amm amount in) / (base reserve - amm amount out)
-    //expect(results[6]).to.eq(await hybridRouter.getPrice(reserves[0].sub(results[1]),
-    // reserves[1].add(amountOffer), bigNumberify("18")))
-   //expect(results[6]).to.eq(price)
+    expect(results[6]).to.eq(await hybridRouter.getPrice(reserves[0].sub(results[1]),
+     reserves[1].add(results[0]), bigNumberify("18")))
+    expect(results[6]).to.eq(price)
   })
 
-  it('getAmountsForBuy: match limit sell order', async () => {
+  /*it('getAmountsForBuy: match limit sell order', async () => {
     await factory.setOrderBookFactory(orderBookFactory.address);
     let limitAmount = expandTo18Decimals(1)
     let currentPrice = await orderBook.getPrice()
@@ -202,7 +210,7 @@ describe('HybridxOrderBook', () => {
     expect(results[5]).to.eq(bigNumberify("0")) //amount left
     //price to = (quote reserve + amm amount in) / (base reserve - amm amount out)
     expect(results[6]).to.eq(await hybridRouter.getPrice(reserves[0].sub(results[1]), reserves[1].add(amountOffer), bigNumberify("18")))
-  })
+  })*/
 
   /*it('getAmountOutForMovePrice down:start price > buy limit order price', async () => {
     await factory.setOrderBookFactory(orderBookFactory.address);
