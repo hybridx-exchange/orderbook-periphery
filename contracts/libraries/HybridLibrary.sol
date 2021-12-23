@@ -27,7 +27,7 @@ library HybridLibrary {
             uint amountQuoteUsed;
             //先计算pair从当前价格到price消耗amountIn的数量
             (amountInLeft, amountBaseUsed, amountQuoteUsed, reserveBase, reserveQuote) =
-                OrderBookLibrary.getAmountForMovePriceWithAmountIn(
+                OrderBookLibrary.getAmountForMovePrice(
                 OrderBookLibrary.LIMIT_BUY, amountInLeft, reserveBase, reserveQuote, priceArray[i], decimal);
 
             //再计算amm中实际会消耗的amountQuote的数量
@@ -58,7 +58,7 @@ library HybridLibrary {
             uint amountQuoteUsed;
             //先计算pair从当前价格到price消耗amountIn的数量
             (amountInLeft, amountBaseUsed, amountQuoteUsed, reserveBase, reserveQuote) =
-                OrderBookLibrary.getAmountForMovePriceWithAmountIn(
+                OrderBookLibrary.getAmountForMovePrice(
                 OrderBookLibrary.LIMIT_BUY, amountInLeft, reserveBase, reserveQuote, price, decimal);
 
             //再计算amm中实际会消耗的amountQuote的数量
@@ -103,7 +103,7 @@ library HybridLibrary {
             uint amountBaseUsed;
             uint amountQuoteUsed;
             (amountInLeft, amountBaseUsed, amountQuoteUsed, reserveBase, reserveQuote) =
-                OrderBookLibrary.getAmountForMovePriceWithAmountIn(
+                OrderBookLibrary.getAmountForMovePrice(
                 OrderBookLibrary.LIMIT_SELL, amountInLeft, reserveBase, reserveQuote, priceArray[i], decimal);
             amounts[0] += amountBaseUsed;
             amounts[1] += amountQuoteUsed;
@@ -132,7 +132,7 @@ library HybridLibrary {
             uint amountBaseUsed;
             uint amountQuoteUsed;
             (amountInLeft, amountBaseUsed, amountQuoteUsed, reserveBase, reserveQuote) =
-            OrderBookLibrary.getAmountForMovePriceWithAmountIn(
+            OrderBookLibrary.getAmountForMovePrice(
                 OrderBookLibrary.LIMIT_SELL, amountInLeft, reserveBase, reserveQuote, price, decimal);
             amounts[0] += amountBaseUsed;
             amounts[1] += amountQuoteUsed;
