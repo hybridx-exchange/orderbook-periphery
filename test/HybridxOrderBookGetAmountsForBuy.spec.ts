@@ -249,13 +249,13 @@ describe('HybridxOrderBook', () => {
     let amountOffer = bigNumberify("10000000000000000000")
     let price = expandTo18Decimals(3)
     let results = await hybridRouter.getAmountsForBuy(amountOffer, price, tokenBase.address, tokenQuote.address)
-    console.log("amm amount in:", results[0].toString())
-    console.log("amm amount out:", results[1].toString())
-    console.log("order amount in:", results[2].toString())
-    console.log("order amount out:", results[3].toString())
-    console.log("fee from order matching:", results[4].toString())
-    console.log("amount left:", results[5].toString())
-    console.log("price to:", results[6].toString())
+    //console.log("amm amount in:", results[0].toString())
+    //console.log("amm amount out:", results[1].toString())
+    //console.log("order amount in:", results[2].toString())
+    //console.log("order amount out:", results[3].toString())
+    //console.log("fee from order matching:", results[4].toString())
+    //console.log("amount left:", results[5].toString())
+    //console.log("price to:", results[6].toString())
     expect(results[0]).to.eq(bigNumberify("2250825417403555361"))
     expect(results[1]).to.eq(bigNumberify("916391527532148214"))
     expect(results[2]).to.eq(limitAmount.mul(bigNumberify(997)).div(bigNumberify(1000)).mul(limitPrice).div(decimalAmount))
@@ -265,51 +265,6 @@ describe('HybridxOrderBook', () => {
     expect(results[6]).to.eq(price)
     expect(results[6]).to.eq((reserves[1].add(results[0])).mul(decimalAmount).div(reserves[0].sub(results[1])))
   })
-
-  /*it('getAmountOutForMovePrice down:start price > buy limit order price', async () => {
-    await factory.setOrderBookFactory(orderBookFactory.address);
-    console.log("price before:", (await orderBook.getPrice()).toString())
-    const minAmount = await orderBook.minAmount()
-    console.log("minAmount:", minAmount.toString())
-
-    let limitAmount = expandTo18Decimals(1)
-    console.log("limitAmount:", limitAmount.toString())
-
-    await tokenQuote.transfer(orderBook.address, limitAmount)
-    await orderBook.createBuyLimitOrder(wallet.address, expandTo18Decimals(1), wallet.address)
-
-    let order = await orderBook.marketOrders(1);
-    printOrder(order)
-    console.log("user orders:", await orderBook.getUserOrders(wallet.address))
-    console.log("price after:", (await orderBook.getPrice()).toString())
-
-    let reserves = await orderBook.getReserves()
-    console.log("reserve base:", reserves[0].toString())
-    console.log("reserve quote:", reserves[1].toString())
-
-    let amountOffer = bigNumberify("1000000000000000000")
-    let price = bigNumberify("1000000000000000000")
-    let results = await hybridRouter.getAmountsForBuy(amountOffer, price, tokenBase.address, tokenQuote.address)
-    console.log("amm amount in:", results[0].toString())
-    console.log("amm amount out:", results[1].toString())
-    console.log("order amount in:", results[2].toString())
-    console.log("order amount out:", results[3].toString())
-    console.log("order fee:", results[4].toString())
-    console.log("order amount left:", results[5].toString())
-    console.log("price to:", results[6].toString())
-
-    amountOffer = bigNumberify("1000000000000000000")
-    price = bigNumberify("1000000000000000000")
-    results = await hybridRouter.getAmountsForSell(amountOffer, price, tokenBase.address, tokenQuote.address)
-    console.log("amm amount in:", results[0].toString())
-    console.log("amm amount out:", results[1].toString())
-    console.log("order amount in:", results[2].toString())
-    console.log("order amount out:", results[3].toString())
-    console.log("order fee:", results[4].toString())
-    console.log("order amount left:", results[5].toString())
-    console.log("price to:", results[6].toString())
-    console.log("price after:", (reserves[1].sub(results[1])).mul(bigNumberify("1000000000000000000")).div(reserves[0].add(results[0])).toString())
-  })*/
 
   //实际情况不存在start price < buy limit order price的情况
 })
