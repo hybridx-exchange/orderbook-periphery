@@ -8,6 +8,16 @@ contract HybridRouterTest is HybridRouter {
     constructor(address _factory, address _WETH) public HybridRouter (_factory, _WETH) {
     }
 
+    //get buy amount with price based on price and offered amount
+    function getBuyAmountWithPrice(uint amountOffer, uint price, uint decimal) internal pure returns (uint amountGet){
+        amountGet = amountOffer.mul(10 ** decimal).div(price);
+    }
+
+    //get sell amount with price based on price and offered amount
+    function getSellAmountWithPrice(uint amountOffer, uint price, uint decimal) internal pure returns (uint amountGet){
+        amountGet = amountOffer.mul(price).div(10 ** decimal);
+    }
+
     // given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
     function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) public pure returns (uint amountOut) {
         require(amountIn > 0, 'OrderBookLibrary: INSUFFICIENT_INPUT_AMOUNT');
@@ -77,7 +87,7 @@ contract HybridRouterTest is HybridRouter {
             uint section1 = getSection1ForPriceDown(reserveBase, reserveQuote, price, decimal);
             uint section2 = reserveBase.mul(1997);
             amountBase = section1 > section2 ? (section1 - section2).div(1994) : 0;
-            amountBase = amountBase > amountIn ? amountIn : amountIn;
+            amountBase = amountBase > amountIn ? amountIn : amountBase;
             amountQuote = amountBase == 0 ? 0 : getAmountOut(amountBase, reserveBase, reserveQuote);
             (amountInLeft, reserveBaseNew, reserveQuoteNew) =
             (amountIn - amountBase, reserveBase + amountBase, reserveQuote - amountQuote);
@@ -120,6 +130,44 @@ contract HybridRouterTest is HybridRouter {
         }
         else {
             (amountLeft, amountAmmBase) = (_amountLeft, _amountAmmBase);
+        }
+    }
+
+    //使用amountA数量的amountInOffer吃掉在价格price, 数量为amountOutOffer的tokenB, 返回实际消耗的tokenA数量和返回的tokenB的数量，amountOffer需要考虑手续费
+    //手续费应该包含在amountOutWithFee中
+    function getAmountOutForTakePrice(uint tradeDir, uint amountInOffer, uint price, uint decimal, uint orderAmount)
+    external pure returns (uint amountInUsed, uint amountOutWithFee, uint fee) {
+        if (tradeDir == OrderBookLibrary.LIMIT_BUY) { //buy (quoteToken == tokenIn, swap quote token to base token)
+            //amountOut = amountInOffer / price
+            uint amountOut = getBuyAmountWithPrice(amountInOffer, price, decimal);
+            if (amountOut.mul(1000) <= orderAmount.mul(997)) { //amountOut <= orderAmount * (1-0.3%)
+                amountInUsed = amountInOffer;
+                fee = amountOut.mul(3).div(1000);
+                amountOutWithFee = amountOut + fee;
+            }
+            else {
+                amountOut = orderAmount.mul(997).div(1000);
+                //amountIn = amountOutWithoutFee * price
+                amountInUsed = getSellAmountWithPrice(amountOut, price, decimal);
+                amountOutWithFee = orderAmount;
+                fee = amountOutWithFee.sub(amountOut);
+            }
+        }
+        else if (tradeDir == OrderBookLibrary.LIMIT_SELL) { //sell (quoteToken == tokenOut, swap base token to quote token)
+            //amountOut = amountInOffer * price ========= match limit buy order
+            uint amountOut = getSellAmountWithPrice(amountInOffer, price, decimal);
+            if (amountOut.mul(1000) <= orderAmount.mul(997)) { //amountOut <= orderAmount * (1-0.3%)
+                amountInUsed = amountInOffer;
+                fee = amountOut.mul(3).div(1000);
+                amountOutWithFee = amountOut + fee;
+            }
+            else {
+                amountOut = orderAmount.mul(997).div(1000);
+                //amountIn = amountOutWithoutFee * price
+                amountInUsed = getBuyAmountWithPrice(amountOut, price, decimal);
+                amountOutWithFee = orderAmount;
+                fee = amountOutWithFee - amountOut;
+            }
         }
     }
 }
