@@ -54,13 +54,13 @@ describe('HybridxOrderBook', () => {
     let currentPrice = await orderBook.getPrice()
 
     await tokenQuote.transfer(orderBook.address, limitAmount)
-    await orderBook.createBuyLimitOrder(wallet.address, expandTo18Decimals(1), wallet.address)
+    await orderBook.createBuyLimitOrder(wallet.address, expandTo18Decimals(1), wallet.address, overrides)
 
     let order = await orderBook.marketOrders(1);
     expect(order.amountRemain).to.eq(limitAmount)
 
     await tokenQuote.transfer(orderBook.address, limitAmount)
-    await orderBook.createBuyLimitOrder(wallet.address, expandTo18Decimals(2), wallet.address)
+    await orderBook.createBuyLimitOrder(wallet.address, expandTo18Decimals(2), wallet.address, overrides)
 
     order = await orderBook.marketOrders(2);
     expect(order.amountRemain).to.eq(limitAmount)
@@ -87,12 +87,14 @@ describe('HybridxOrderBook', () => {
   it('getAmountsForBuy: start price < end price <= buy limit price', async () => {
     await factory.setOrderBookFactory(orderBookFactory.address);
     let limitAmount = expandTo18Decimals(1)
+    let minAmount = bigNumberify("1000")
     let currentPrice = await orderBook.getPrice()
+    let decimal = bigNumberify("18")
 
     await tokenQuote.transfer(orderBook.address, limitAmount)
     await orderBook.createBuyLimitOrder(wallet.address, expandTo18Decimals(2), wallet.address, overrides)
 
-    let order = await orderBook.marketOrders(1);
+    let order = await orderBook.marketOrders(1)
     expect(order.amountRemain).to.eq(limitAmount)
     expect(await orderBook.getUserOrders(wallet.address)).to.deep.eq([bigNumberify("1")])
     expect(await orderBook.getPrice()).to.eq(currentPrice)
@@ -124,18 +126,24 @@ describe('HybridxOrderBook', () => {
     expect(results[4]).to.eq(bigNumberify("0")) //fee from order
     expect(results[5]).to.eq(bigNumberify("0")) //amount left
     //price to = (quote reserve + amm amount in) / (base reserve - amm amount out)
-    expect(results[6]).to.eq(await hybridRouter.getPrice(reserves[0].sub(results[1]), reserves[1].add(amountOffer), bigNumberify("18")))
+    expect(results[6]).to.eq(await hybridRouter.getPrice(reserves[0].sub(results[1]), reserves[1].add(amountOffer), decimal))
 
     //limit price == end price > start price
     amountOffer = bigNumberify("10000000000000000000")
     price = expandTo18Decimals(3)
 
-    results = await hybridRouter.getAmountForMovePrice(bigNumberify("1"), amountOffer, reserves[0], reserves[1], price, bigNumberify("18"))
+    results = await hybridRouter.getAmountForMovePrice(bigNumberify("1"), amountOffer, reserves[0], reserves[1], price, decimal)
     console.log("amount left:", results[0].toString())
     console.log("amount base used:", results[1].toString())
     console.log("amount quote used:", results[2].toString())
     console.log("reserve base:", results[3].toString())
     console.log("reserve quote:", results[4].toString())
+    console.log("price:", (await hybridRouter.getPrice(results[3], results[4], decimal)).toString())
+
+    results = await hybridRouter.getFixAmountForMovePriceUp(results[0], results[2], results[3], results[4], price, decimal);
+    console.log("amount left:", results[0].toString())
+    console.log("amount quote used:", results[1].toString())
+    console.log("amount quote fix:", results[2].toString())
 
     results = await hybridRouter.getAmountsForBuy(amountOffer, price, tokenBase.address, tokenQuote.address)
     console.log("amm amount in:", results[0].toString())
@@ -145,16 +153,17 @@ describe('HybridxOrderBook', () => {
     console.log("fee from order matching:", results[4].toString())
     console.log("amount left:", results[5].toString())
     console.log("price to:", results[6].toString())
-    expect(results[0]).to.eq(bigNumberify("2250825417403555356")) // amm amount in
-    expect(results[1]).to.gte(await hybridRouter.getAmountOut(results[0], reserves[1], reserves[0])) //amm amount out
+    expect(results[0]).to.eq(bigNumberify("2250825417403555361")) // amm amount in
+    expect(results[1]).to.lte(await hybridRouter.getAmountOut(results[0], reserves[1], reserves[0])) //amm amount out
+    expect(results[1]).to.gte((await hybridRouter.getAmountOut(results[0], reserves[1], reserves[0])).sub(minAmount))
     expect(results[2]).to.eq(bigNumberify("0")) //order amount in
     expect(results[3]).to.eq(bigNumberify("0")) //order amount out
     expect(results[4]).to.eq(bigNumberify("0")) //fee from order
-    //expect(results[5]).to.eq(amountOffer.sub(results[0])) //amount left
+    expect(results[5]).to.eq(amountOffer.sub(results[0])) //amount left
     //price to = (quote reserve + amm amount in) / (base reserve - amm amount out)
     expect(results[6]).to.eq(await hybridRouter.getPrice(reserves[0].sub(results[1]),
-     reserves[1].add(results[0]), bigNumberify("18")))
-    expect(results[6]).to.eq(price)
+     reserves[1].add(results[0]), decimal))
+    expect(results[6]).to.gte(price)
   })
 
   /*it('getAmountsForBuy: match limit sell order', async () => {

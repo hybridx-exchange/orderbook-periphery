@@ -79,8 +79,8 @@ library HybridLibrary {
 
         if (amounts[1] > 0 && amountInLeft > 0) {
             uint amountQuoteFix;
-            (amountInLeft, amounts[1], amountQuoteFix) =
-                OrderBookLibrary.getFixAmountForMovePriceUp(amountInLeft, amounts[1], reserveBase, reserveQuote,
+            (amountInLeft, amounts[0], amountQuoteFix) =
+                OrderBookLibrary.getFixAmountForMovePriceUp(amountInLeft, amounts[0], reserveBase, reserveQuote,
                     price, decimal);
             amounts[6] = OrderBookLibrary.getPrice(reserveBase, reserveQuote + amountQuoteFix, decimal);
         }
