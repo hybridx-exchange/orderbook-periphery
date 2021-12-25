@@ -109,3 +109,13 @@ export function printOrder(o: Order) {
     console.log("order.orderType :", o.orderType.toString())
     console.log("order.orderIndex :", o.orderIndex.toString())
 }
+
+const orderPrefix = ["order.owner :", "order.to :", "order.orderId :", "order.price :", "order.amountOffer :", "order.amountRemain :", "order.orderType :", "order.orderIndex :"]
+
+// @ts-ignore
+export function printOrder2(o: Order) {
+    for (let i=0; i<o.length; i++){
+        let prefix = i >= orderPrefix.length ? "["+i+"]" : orderPrefix[i]
+        console.log(prefix, o[i].toString())
+    }
+}
