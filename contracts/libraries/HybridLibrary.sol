@@ -37,8 +37,9 @@ library HybridLibrary {
         for (uint i=0; i<priceArray.length; i++) {
             uint amountBaseUsed;
             uint amountQuoteUsed;
+            uint amountAmmLeft;
             //先计算pair从当前价格到price消耗amountIn的数量
-            (amounts[5], amountBaseUsed, amountQuoteUsed, reserveBaseTmp, reserveQuoteTmp) =
+            (amountAmmLeft, amountBaseUsed, amountQuoteUsed, reserveBaseTmp, reserveQuoteTmp) =
                 OrderBookLibrary.getAmountForMovePrice(
                     OrderBookLibrary.LIMIT_BUY, amounts[5], reserveBase, reserveQuote, priceArray[i], decimal);
 
@@ -46,21 +47,19 @@ library HybridLibrary {
             amounts[0] = amountQuoteUsed;
             //再计算本次移动价格获得的amountBase
             amounts[1] = amountBaseUsed;
-            if (amounts[5] == 0) {
+            if (amountAmmLeft == 0) {
+                amounts[5] = 0;  //avoid getAmountForMovePrice recalculation
                 break;
             }
 
             //计算消耗掉一个价格的挂单需要的amountQuote数量
             (uint amountInForTake, uint amountOutWithFee, uint fee) = OrderBookLibrary.getAmountOutForTakePrice(
-                OrderBookLibrary.LIMIT_BUY, amounts[5], priceArray[i], decimal, amountArray[i]);
+                OrderBookLibrary.LIMIT_BUY, amountAmmLeft, priceArray[i], decimal, amountArray[i]);
             amounts[2] += amountInForTake;
             amounts[3] += amountOutWithFee;
             amounts[4] += fee;
-            if (amounts[5] > amountInForTake) {
-                amounts[5] = amounts[5] - amountInForTake;
-            }
-            else {
-                amounts[5] = 0;
+            if (amountInForTake == amountAmmLeft) {
+                amounts[5] = 0; //avoid getAmountForMovePrice recalculation
                 break;
             }
         }
@@ -113,28 +112,28 @@ library HybridLibrary {
         for (uint i=0; i<priceArray.length; i++) {
             uint amountBaseUsed;
             uint amountQuoteUsed;
-            (amounts[5], amountBaseUsed, amountQuoteUsed, reserveBaseTmp, reserveQuoteTmp) =
+            uint amountAmmLeft;
+            (amountAmmLeft, amountBaseUsed, amountQuoteUsed, reserveBaseTmp, reserveQuoteTmp) =
                 OrderBookLibrary.getAmountForMovePrice(
                 OrderBookLibrary.LIMIT_SELL, amounts[5], reserveBase, reserveQuote, priceArray[i], decimal);
             amounts[0] = amountBaseUsed;
             amounts[1] = amountQuoteUsed;
 
             //再计算还剩下的amountIn
-            if (amounts[5] == 0) {
+            if (amountAmmLeft == 0) {
+                amounts[5] = 0;  //avoid getAmountForMovePrice recalculation
                 break;
             }
 
             //计算消耗掉一个价格的挂单需要的amountIn数量
             (uint amountInForTake, uint amountOutWithFee, uint fee) = OrderBookLibrary.getAmountOutForTakePrice(
-                OrderBookLibrary.LIMIT_SELL, amounts[5], priceArray[i], decimal, amountArray[i]);
+                OrderBookLibrary.LIMIT_SELL, amountAmmLeft, priceArray[i], decimal, amountArray[i]);
             amounts[2] += amountInForTake;
             amounts[3] += amountOutWithFee;
             amounts[4] += fee;
-            if (amounts[5] > amountInForTake) {
-                amounts[5] = amounts[5] - amountInForTake;
-            }
-            else {
-                amounts[5] = 0;
+            amounts[5] = amounts[5].sub(amountInForTake);
+            if (amountInForTake == amountAmmLeft) {
+                amounts[5] = 0; //avoid getAmountForMovePrice recalculation
                 break;
             }
         }
