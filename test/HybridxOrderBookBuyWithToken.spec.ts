@@ -50,7 +50,7 @@ describe('HybridxOrderBook', () => {
     expect(await provider.getBalance(hybridRouter.address)).to.eq(0)
   })
 
-  it('buyWithToken: buy limit price <= start price == end price', async () => {
+  /*it('buyWithToken: buy limit price <= start price == end price', async () => {
     await factory.setOrderBookFactory(orderBookFactory.address);
     const minAmount = await orderBook.minAmount()
     expect(minAmount).to.eq(bigNumberify("1000"))
@@ -96,7 +96,7 @@ describe('HybridxOrderBook', () => {
     ])
   })
 
-  it('buyWithToken: start price < end price <= buy limit price', async () => {
+  it('buyWithToken: start price < end price < buy limit price', async () => {
     await factory.setOrderBookFactory(orderBookFactory.address);
     const minAmount = await orderBook.minAmount()
     expect(minAmount).to.eq(bigNumberify("1000"))
@@ -135,6 +135,7 @@ describe('HybridxOrderBook', () => {
     expect(quoteBalance).to.eq(limitAmount)
 
     currentPrice = await hybridRouter.getPrice(reserves[0].sub(expectOutputAmount), reserves[1].add(limitAmount), decimal)
+    console.log("current price:", currentPrice.toString())
 
     expect(await orderBook.getUserOrders(wallet.address)).to.deep.eq([bigNumberify("1")])
     expect(await hybridRouter.getOrderBook(tokenBase.address, tokenQuote.address, 32)).to.deep.eq([
@@ -145,6 +146,62 @@ describe('HybridxOrderBook', () => {
       []
     ])
   })
+
+  it('buyWithToken: start price < end price == buy limit price', async () => {
+    await factory.setOrderBookFactory(orderBookFactory.address);
+    const minAmount = await orderBook.minAmount()
+    expect(minAmount).to.eq(bigNumberify("1000"))
+    let limitAmount = expandTo18Decimals(1)
+    let currentPrice = await orderBook.getPrice()
+    let decimal = bigNumberify(18)
+    let limitPrice = expandTo18Decimals(2)
+    let direction = bigNumberify(1)
+    await tokenQuote.approve(hybridRouter.address, MaxUint256)
+
+    await expect(hybridRouter.buyWithToken(limitAmount, limitPrice, tokenBase.address, tokenQuote.address, wallet.address, MaxUint256, overrides))
+        .to.emit(tokenQuote, "Transfer").withArgs(wallet.address, orderBook.address, limitAmount)
+        .to.emit(orderBook, "OrderCreated").withArgs(wallet.address, wallet.address, limitAmount, limitAmount, limitPrice, direction)
+
+    let order = await orderBook.marketOrders(1);
+    expect(order.amountRemain).to.eq(limitAmount)
+
+    let order2 = await orderBook.marketOrder(1)
+    expect(order2.length > 5 && order2[5]).to.eq(limitAmount)
+
+    let quoteBalance = await orderBook.quoteBalance();
+    expect(quoteBalance).to.eq(limitAmount)
+
+    expect(currentPrice).to.eq(limitPrice)
+
+    let reserves = await orderBook.getReserves()
+    limitPrice = expandTo18Decimals(3)
+    limitAmount = expandTo18Decimals(10)
+    let results = await hybridRouter.getAmountForMovePrice(direction, limitAmount, reserves[0], reserves[1], limitPrice, decimal)
+    let expectOutputAmount = results[1]
+    let expectInputAmount = results[2]
+
+
+    await expect(hybridRouter.buyWithToken(limitAmount, limitPrice, tokenBase.address, tokenQuote.address, wallet.address, MaxUint256, overrides))
+        .to.emit(tokenQuote, "Transfer").withArgs(wallet.address, orderBook.address, limitAmount)
+        .to.emit(tokenQuote, "Transfer").withArgs(orderBook.address, pair.address, expectInputAmount)
+        .to.emit(tokenBase, "Transfer").withArgs(pair.address, wallet.address, expectOutputAmount)
+        .to.emit(orderBook, "OrderCreated").withArgs(wallet.address, wallet.address, limitAmount, limitAmount.sub(expectInputAmount), limitPrice, direction)
+
+    quoteBalance = await orderBook.quoteBalance();
+    expect(quoteBalance).to.eq(expandTo18Decimals(1).add(limitAmount.sub(expectInputAmount)))
+
+    currentPrice = await hybridRouter.getPrice(reserves[0].sub(expectOutputAmount), reserves[1].add(expectInputAmount), decimal)
+    expect(currentPrice).to.eq(limitPrice)
+
+    expect(await orderBook.getUserOrders(wallet.address)).to.deep.eq([bigNumberify("1"), bigNumberify("2")])
+    expect(await hybridRouter.getOrderBook(tokenBase.address, tokenQuote.address, 32)).to.deep.eq([
+      currentPrice,
+      [expandTo18Decimals(2), limitPrice],
+      [expandTo18Decimals(1), limitAmount.sub(expectInputAmount)],
+      [],
+      []
+    ])
+  })*/
 
   /*it('getAmountsForBuy: match sell limit order, price == current price', async () => {
     await factory.setOrderBookFactory(orderBookFactory.address);
