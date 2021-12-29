@@ -734,7 +734,7 @@ describe('HybridxOrderBook', () => {
     expect(reserves[1].mul(reserves[0])).to.lte((reserves[1].add(results[0])).mul(reserves[0].sub(results[1])))
   })*/
 
-  it('getAmountsForBuy: not match sell limit orders, price == end price < min limit price', async () => {
+  /*it('getAmountsForBuy: not match sell limit orders, price == end price < min limit price', async () => {
     await factory.setOrderBookFactory(orderBookFactory.address);
     let limitAmount = expandTo18Decimals(1)
     let limitPrices = [
@@ -804,7 +804,7 @@ describe('HybridxOrderBook', () => {
     //expect(results[6]).to.lte(limitPrices[0])
     //expect(results[6]).to.eq((reserves[1].add(results[0])).mul(decimalAmount).div(reserves[0].sub(results[1])))
     //expect(reserves[1].mul(reserves[0])).to.lte((reserves[1].add(results[0])).mul(reserves[0].sub(results[1])))
-  })
+  })*/
 
   /*it('test', async () => {
     await factory.setOrderBookFactory(orderBookFactory.address);

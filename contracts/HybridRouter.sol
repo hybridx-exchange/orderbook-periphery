@@ -32,7 +32,15 @@ contract HybridRouter is IHybridRouter {
         assert(msg.sender == WETH); // only accept ETH via fallback from the WETH contract
     }
 
-    //创建用quoteToken买baseToken限价单 (usdc -> uni)
+    /**************************************************************************************************************
+    @param amountOffer             amount offered for limit order
+    @param price                   price of limit order
+    @param tokenA                  one token of order book
+    @param tokenB                  another token of order book
+    @param to                      account for received token when the order is filled
+    @param deadline                dead line for this transaction
+    @return orderId                order id when order is placed
+    **************************************************************************************************************/
     function buyWithToken(
         uint amountOffer,
         uint price,
