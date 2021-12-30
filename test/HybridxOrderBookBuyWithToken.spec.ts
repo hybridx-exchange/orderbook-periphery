@@ -211,7 +211,7 @@ describe('HybridxOrderBook', () => {
     ])
   })*/
 
-  it('buyWithToken: match limit order, buy limit price == sell limit price == current price', async () => {
+  /*it('buyWithToken: match limit order, buy limit price == min sell limit price == current price', async () => {
     await factory.setOrderBookFactory(orderBookFactory.address);
     let decimal = bigNumberify(18)
     let decimalAmount = expandTo18Decimals(1)
@@ -244,25 +244,31 @@ describe('HybridxOrderBook', () => {
     let direction = bigNumberify(1)
     await tokenQuote.approve(hybridRouter.address, MaxUint256)
 
-    let reserves = await orderBook.getReserves()
-    let results = await hybridRouter.getAmountForMovePrice(direction, limitAmount, reserves[0], reserves[1], limitPrice, decimal)
-    let results2 = await hybridRouter.getFixAmountForMovePriceUp(results[0], results[2], results[3], results[4], limitPrice, decimal);
-    console.log("amount left:", results2[0].toString())
-    console.log("amm amount in:", results2[1].toString())
-    console.log("amm amount in fixed:", results2[2].toString())
-    console.log("amm amount out:", results[1].toString())
-    console.log("reserve base:", results[3].toString())
-    console.log("reserve quote:", results[4].add(results2[2]).toString())
-    console.log("price:", ((results[4].add(results2[2])).mul(decimalAmount).div(results[3])).toString())
+    //let reserves = await orderBook.getReserves()
+    //let results = await hybridRouter.getAmountForMovePrice(direction, limitAmount, reserves[0], reserves[1],
+    // limitPrice, decimal)
+    //let results2 = await hybridRouter.getFixAmountForMovePriceUp(results[0], results[2], results[3], results[4],
+    // limitPrice, decimal);
+    //console.log("amount left:", results2[0].toString())
+    //console.log("amm amount in:", results2[1].toString())
+    //console.log("amm amount in fixed:", results2[2].toString())
+    //console.log("amm amount out:", results[1].toString())
+    //console.log("reserve base:", results[3].toString())
+    //console.log("reserve quote:", results[4].add(results2[2]).toString())
+    //console.log("price:", ((results[4].add(results2[2])).mul(decimalAmount).div(results[3])).toString())
+
+    let result3 = await hybridRouter.getAmountOutForTakePrice(bigNumberify(1), limitAmount, limitPrice, decimal, expandTo18Decimals(2))
+    //console.log("amount out with fee:", result3[1].toString())
 
     await expect(hybridRouter.buyWithToken(limitAmount, limitPrice, tokenBase.address, tokenQuote.address, wallet.address, MaxUint256, overrides))
         .to.emit(tokenQuote, "Transfer").withArgs(wallet.address, orderBook.address, limitAmount)
+        .to.emit(tokenBase, "Transfer").withArgs(orderBook.address, wallet.address, result3[1])
 
     expect((await orderBook.getUserOrders(wallet.address)).length).to.eq(9)
-    let order = await orderBook.marketOrders(10);
-    printOrder(order)
-    order = await orderBook.marketOrders(1);
-    printOrder(order)
+    //let order = await orderBook.marketOrders(10);
+    //printOrder(order)
+    //order = await orderBook.marketOrders(1);
+    //printOrder(order)
 
     let quoteBalance = await orderBook.quoteBalance();
     expect(quoteBalance).to.eq(bigNumberify(0))
@@ -283,7 +289,7 @@ describe('HybridxOrderBook', () => {
         bigNumberify("2700000000000000000"),
         bigNumberify("2800000000000000000")],
       [
-        bigNumberify("9498500000000000000"),
+        bigNumberify("1498500000000000000"),
         expandTo18Decimals(2),
         expandTo18Decimals(2),
         expandTo18Decimals(2),
@@ -294,5 +300,5 @@ describe('HybridxOrderBook', () => {
         expandTo18Decimals(2)
       ]
     ])
-  })
+  })*/
 })
