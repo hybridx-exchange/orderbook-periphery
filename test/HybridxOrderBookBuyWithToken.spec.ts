@@ -220,12 +220,12 @@ describe('HybridxOrderBook', () => {
       expandTo18Decimals(2),
       bigNumberify("2100000000000000000"),
       bigNumberify("2200000000000000000"),
+      bigNumberify("2200000000000000000"),
       bigNumberify("2300000000000000000"),
       bigNumberify("2400000000000000000"),
       bigNumberify("2500000000000000000"),
       bigNumberify("2600000000000000000"),
-      bigNumberify("2700000000000000000"),
-      bigNumberify("2800000000000000000")]
+      bigNumberify("2700000000000000000")]
 
     for (let i=0; i<limitPrices.length; i++) {
       await tokenBase.transfer(orderBook.address, limitAmount)
@@ -265,10 +265,12 @@ describe('HybridxOrderBook', () => {
         .to.emit(tokenBase, "Transfer").withArgs(orderBook.address, wallet.address, result3[1])
 
     expect((await orderBook.getUserOrders(wallet.address)).length).to.eq(9)
-    //let order = await orderBook.marketOrders(10);
-    //printOrder(order)
-    //order = await orderBook.marketOrders(1);
-    //printOrder(order)
+    {
+      let order = await orderBook.marketOrders(10);
+      printOrder(order)
+      order = await orderBook.marketOrders(1);
+      printOrder(order)
+    }
 
     let quoteBalance = await orderBook.quoteBalance();
     expect(quoteBalance).to.eq(bigNumberify(0))
@@ -286,13 +288,11 @@ describe('HybridxOrderBook', () => {
         bigNumberify("2400000000000000000"),
         bigNumberify("2500000000000000000"),
         bigNumberify("2600000000000000000"),
-        bigNumberify("2700000000000000000"),
-        bigNumberify("2800000000000000000")],
+        bigNumberify("2700000000000000000")],
       [
         bigNumberify("1498500000000000000"),
         expandTo18Decimals(2),
-        expandTo18Decimals(2),
-        expandTo18Decimals(2),
+        expandTo18Decimals(4),
         expandTo18Decimals(2),
         expandTo18Decimals(2),
         expandTo18Decimals(2),
@@ -310,10 +310,12 @@ describe('HybridxOrderBook', () => {
         .to.emit(tokenBase, "Transfer").withArgs(orderBook.address, wallet.address, result4[1])
 
     expect((await orderBook.getUserOrders(wallet.address)).length).to.eq(9)
-    let order = await orderBook.marketOrders(10);
-    printOrder(order)
-    order = await orderBook.marketOrders(2);
-    printOrder(order)
+    {
+      let order = await orderBook.marketOrders(10);
+      printOrder(order)
+      order = await orderBook.marketOrders(2);
+      printOrder(order)
+    }
 
     quoteBalance = await orderBook.quoteBalance();
     expect(quoteBalance).to.eq(bigNumberify("11991000000000000"))
@@ -336,12 +338,10 @@ describe('HybridxOrderBook', () => {
         bigNumberify("2400000000000000000"),
         bigNumberify("2500000000000000000"),
         bigNumberify("2600000000000000000"),
-        bigNumberify("2700000000000000000"),
-        bigNumberify("2800000000000000000")],
+        bigNumberify("2700000000000000000")],
       [
         expandTo18Decimals(2),
-        expandTo18Decimals(2),
-        expandTo18Decimals(2),
+        expandTo18Decimals(4),
         expandTo18Decimals(2),
         expandTo18Decimals(2),
         expandTo18Decimals(2),
