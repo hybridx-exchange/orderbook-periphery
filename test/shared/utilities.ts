@@ -119,3 +119,12 @@ export function printOrder2(o: Order) {
         console.log(prefix, o[i].toString())
     }
 }
+
+// @ts-ignore
+export function printArray(o) {
+    console.log("---------------------------------------")
+    for (let i=0; i<o.length; i++){
+        let prefix = "["+i+"]:"
+        console.log(prefix, o[i].toString())
+    }
+}
