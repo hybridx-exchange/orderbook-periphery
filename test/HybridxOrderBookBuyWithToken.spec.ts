@@ -371,7 +371,44 @@ describe('HybridxOrderBook', () => {
       await orderBook.createSellLimitOrder(wallet.address, limitPrices[i], wallet.address, overrides)
     }
 
-    let baseBalance = await orderBook.baseBalance();
+    await tokenQuote.transfer(orderBook.address, expandTo18Decimals(1))
+    await orderBook.createBuyLimitOrder(wallet.address, expandTo18Decimals(1), wallet.address, overrides)
+
+    /*let reserves = await orderBook.getReserves()
+    let results = await hybridRouter.getAmountForMovePrice(bigNumberify(1), expandTo18Decimals(4), reserves[0], reserves[1], expandTo18Decimals(3), decimal)
+    console.log("amount left:", results[0].toString())
+    console.log("amm amount base:", results[1].toString())
+    console.log("amm amount quote:", results[2].toString())
+    console.log("reserve base:", results[3].toString())
+    console.log("reserve quote:", results[4].toString())
+    console.log("price:", ((results[4]).mul(expandTo18Decimals(1)).div(results[3])).toString())
+
+    let result3 = await hybridRouter.getAmountOutForTakePrice(bigNumberify(1), results[0], expandTo18Decimals(3), decimal, expandTo18Decimals(1))
+    console.log("amount in:", result3[0].toString())
+    console.log("amount out with fee:", result3[1].toString())
+    console.log("community fee:", result3[2].toString())
+    console.log("order left:", (expandTo18Decimals(1).sub(result3[1]).sub(result3[2])).toString())
+    console.log("swap price:",
+        (expandTo18Decimals(4)).mul(expandTo18Decimals(1)).div(results[1].add(result3[1])).toString())*/
+
+    let reserves = await orderBook.getReserves()
+    let results = await hybridRouter.getAmountForMovePrice(bigNumberify(2), expandTo18Decimals(4), reserves[0], reserves[1], expandTo18Decimals(1), decimal)
+    console.log("amount left:", results[0].toString())
+    console.log("amm amount base:", results[1].toString())
+    console.log("amm amount quote:", results[2].toString())
+    console.log("reserve base:", results[3].toString())
+    console.log("reserve quote:", results[4].toString())
+    console.log("price:", ((results[4]).mul(expandTo18Decimals(1)).div(results[3])).toString())
+
+    let result3 = await hybridRouter.getAmountOutForTakePrice(bigNumberify(2), results[0], expandTo18Decimals(1), decimal, expandTo18Decimals(1))
+    console.log("amount in:", result3[0].toString())
+    console.log("amount out with fee:", result3[1].toString())
+    console.log("community fee:", result3[2].toString())
+    console.log("order left:", (expandTo18Decimals(1).sub(result3[1]).sub(result3[2])).toString())
+    console.log("swap price:",
+     (results[2].add(result3[1]).mul(expandTo18Decimals(1)).div(expandTo18Decimals(3))).toString())
+
+    /*let baseBalance = await orderBook.baseBalance();
     expect(baseBalance).to.eq(limitAmount.mul(limitPrices.length))
 
     expect((await orderBook.getUserOrders(wallet.address)).length).to.eq(9)
@@ -541,6 +578,6 @@ describe('HybridxOrderBook', () => {
         expandTo18Decimals(2),
         expandTo18Decimals(2)
       ]
-    ])
+    ])*/
   })
 })

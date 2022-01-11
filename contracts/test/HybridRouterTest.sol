@@ -136,17 +136,20 @@ contract HybridRouterTest is HybridRouter {
     //使用amountA数量的amountInOffer吃掉在价格price, 数量为amountOutOffer的tokenB, 返回实际消耗的tokenA数量和返回的tokenB的数量，amountOffer需要考虑手续费
     //手续费应该包含在amountOutWithFee中
     function getAmountOutForTakePrice(uint tradeDir, uint amountInOffer, uint price, uint decimal, uint orderAmount)
-    external pure returns (uint amountInUsed, uint amountOutWithFee, uint fee) {
+    external pure returns (uint amountInUsed, uint amountOutWithFee, uint communityFee) {
+        uint protocolFeeRate = 30;
+        uint subsidyFeeRate = 50;
+        uint fee;
         if (tradeDir == OrderBookLibrary.LIMIT_BUY) { //buy (quoteToken == tokenIn, swap quote token to base token)
             //amountOut = amountInOffer / price
             uint amountOut = getBuyAmountWithPrice(amountInOffer, price, decimal);
-            if (amountOut.mul(1000) <= orderAmount.mul(997)) { //amountOut <= orderAmount * (1-0.3%)
+            if (amountOut.mul(10000) <= orderAmount.mul(10000-protocolFeeRate)) { //amountOut <= orderAmount * (1-0.3%)
                 amountInUsed = amountInOffer;
-                fee = amountOut.mul(3).div(1000);
+                fee = amountOut.mul(protocolFeeRate).div(10000);
                 amountOutWithFee = amountOut + fee;
             }
             else {
-                amountOut = orderAmount.mul(997).div(1000);
+                amountOut = orderAmount.mul(10000-protocolFeeRate).div(10000);
                 //amountIn = amountOutWithoutFee * price
                 amountInUsed = getSellAmountWithPrice(amountOut, price, decimal);
                 amountOutWithFee = orderAmount;
@@ -156,18 +159,21 @@ contract HybridRouterTest is HybridRouter {
         else if (tradeDir == OrderBookLibrary.LIMIT_SELL) { //sell (quoteToken == tokenOut, swap base token to quote token)
             //amountOut = amountInOffer * price ========= match limit buy order
             uint amountOut = getSellAmountWithPrice(amountInOffer, price, decimal);
-            if (amountOut.mul(1000) <= orderAmount.mul(997)) { //amountOut <= orderAmount * (1-0.3%)
+            if (amountOut.mul(10000) <= orderAmount.mul(10000-protocolFeeRate)) { //amountOut <= orderAmount * (1-0.3%)
                 amountInUsed = amountInOffer;
-                fee = amountOut.mul(3).div(1000);
+                fee = amountOut.mul(protocolFeeRate).div(10000);
                 amountOutWithFee = amountOut + fee;
             }
             else {
-                amountOut = orderAmount.mul(997).div(1000);
+                amountOut = orderAmount.mul(10000-protocolFeeRate).div(10000);
                 //amountIn = amountOutWithoutFee * price
                 amountInUsed = getBuyAmountWithPrice(amountOut, price, decimal);
                 amountOutWithFee = orderAmount;
                 fee = amountOutWithFee - amountOut;
             }
         }
+
+        // (fee * 100 - fee * subsidyFeeRate) / 100
+        communityFee = (fee.mul(100).sub(fee.mul(subsidyFeeRate))).div(100);
     }
 }
