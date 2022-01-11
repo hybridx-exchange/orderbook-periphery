@@ -3,6 +3,10 @@ pragma solidity >=0.5.0;
 import '@hybridx-exchange/orderbook-core/contracts/libraries/OrderBookLibrary.sol';
 import "@hybridx-exchange/orderbook-core/contracts/interfaces/IOrderBook.sol";
 
+/**************************************************************************************************************
+@title                          library for hybrid order book router
+@author                         https://twitter.com/cherideal
+**************************************************************************************************************/
 library HybridLibrary {
     using SafeMath for uint;
 
@@ -24,7 +28,7 @@ library HybridLibrary {
     internal
     view
     returns (uint[] memory amounts) {
-        //获取价格范围内的反方向挂单
+        //get sell limit orders within a price range
         (uint[] memory priceArray, uint[] memory amountArray) =
             IOrderBook(orderBook).rangeBook(OrderBookLibrary.LIMIT_SELL, price);
 
@@ -38,26 +42,26 @@ library HybridLibrary {
         amounts = new uint[](7);
         amounts[5] = amountOffer;
 
-        //看看是否需要吃单
+        //See if it is necessary to take orders
         for (uint i=0; i<priceArray.length; i++) {
             uint amountBaseUsed;
             uint amountQuoteUsed;
             uint amountAmmLeft;
-            //先计算pair从当前价格到price消耗amountIn的数量
+            //First calculate the amount in consumed from LP price to order price
             (amountAmmLeft, amountBaseUsed, amountQuoteUsed, params[3], params[4]) =
                 OrderBookLibrary.getAmountForMovePrice(
                     OrderBookLibrary.LIMIT_BUY, amounts[5], reserveBase, reserveQuote, priceArray[i], params[0]);
 
-            //再计算amm中实际会消耗的amountQuote的数量
+            //Calculate the amount of quote that will actually be consumed in amm
             amounts[0] = amountQuoteUsed;
-            //再计算本次移动价格获得的amountBase
+            //Then calculate the amount of Base obtained from this moving price
             amounts[1] = amountBaseUsed;
             if (amountAmmLeft == 0) {
                 amounts[5] = 0;  //avoid getAmountForMovePrice recalculation
                 break;
             }
 
-            //计算消耗掉一个价格的挂单需要的amountQuote数量
+            //Calculate the amount of quote required to consume a pending order at a price
             (uint amountInForTake, uint amountOutWithFee, uint fee) = OrderBookLibrary.getAmountOutForTakePrice(
                 OrderBookLibrary.LIMIT_BUY, amountAmmLeft, priceArray[i], params[0], params[1], params[2],
                     amountArray[i]);
@@ -73,14 +77,10 @@ library HybridLibrary {
         if (amounts[5] > 0 && (priceArray.length == 0 || price > priceArray[priceArray.length-1])) {
             uint amountBaseUsed;
             uint amountQuoteUsed;
-            //先计算pair从当前价格到price消耗amountIn的数量
             (amounts[5], amountBaseUsed, amountQuoteUsed, params[3], params[4]) =
                 OrderBookLibrary.getAmountForMovePrice(
                     OrderBookLibrary.LIMIT_BUY, amounts[5], reserveBase, reserveQuote, price, params[0]);
-
-            //再计算amm中实际会消耗的amountQuote的数量
             amounts[0] = amountQuoteUsed;
-            //再计算本次移动价格获得的amountBase
             amounts[1] = amountBaseUsed;
         }
 
@@ -96,7 +96,15 @@ library HybridLibrary {
         }
     }
 
-    //base in quote out
+    /**************************************************************************************************************
+    @param orderBook               address of order book contract
+    @param amountOffer             amount offered for limit order
+    @param price                   price of limit order
+    @param reserveBase             reserve amount of base token
+    @param reserveQuote            reserve amount of quote token
+    @return amounts                [amm amount in, amm amount out, order amount in, order amount out,
+                                    order fee, amount left, price to]
+    **************************************************************************************************************/
     function getAmountsForSellLimitOrder(
         address orderBook,
         uint amountOffer,
@@ -106,37 +114,36 @@ library HybridLibrary {
     internal
     view
     returns (uint[] memory amounts) {
-        //获取价格范围内的反方向挂单
+        //get buy limit orders within a price range
         (uint[] memory priceArray, uint[] memory amountArray) =
             IOrderBook(orderBook).rangeBook(OrderBookLibrary.LIMIT_BUY, price);
         uint[] memory params = new uint[](3);
         (params[0], params[1], params[2], params[3], params[4]) = (
             IOrderBook(orderBook).priceDecimal(),
-            IOrderBook(orderBook).protocolFeeRate(), //需要获取多个参数，可以考虑一个接口获取多个参数
+            IOrderBook(orderBook).protocolFeeRate(), //considered get multiple parameters by one interface
             IOrderBook(orderBook).subsidyFeeRate(),
             reserveBase,
             reserveQuote);
         amounts = new uint[](7);
         amounts[5] = amountOffer;
 
-        //看看是否需要吃单
+        //See if it is necessary to take orders
         for (uint i=0; i<priceArray.length; i++) {
             uint amountBaseUsed;
             uint amountQuoteUsed;
             uint amountAmmLeft;
+            //First calculate the amount in consumed from LP price to order price
             (amountAmmLeft, amountBaseUsed, amountQuoteUsed, params[3], params[4]) =
                 OrderBookLibrary.getAmountForMovePrice(
                 OrderBookLibrary.LIMIT_SELL, amounts[5], reserveBase, reserveQuote, priceArray[i], params[0]);
             amounts[0] = amountBaseUsed;
             amounts[1] = amountQuoteUsed;
-
-            //再计算还剩下的amountIn
             if (amountAmmLeft == 0) {
                 amounts[5] = 0;  //avoid getAmountForMovePrice recalculation
                 break;
             }
 
-            //计算消耗掉一个价格的挂单需要的amountIn数量
+            //Calculate the amount of base required to consume a pending order at a price
             (uint amountInForTake, uint amountOutWithFee, uint fee) = OrderBookLibrary.getAmountOutForTakePrice(
                 OrderBookLibrary.LIMIT_SELL, amountAmmLeft, priceArray[i], params[0], params[1], params[2],
                     amountArray[i]);
