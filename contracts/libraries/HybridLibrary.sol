@@ -34,7 +34,7 @@ library HybridLibrary {
 
         uint[] memory params = new uint[](5);
         (params[0], params[1], params[2], params[3], params[4]) = (
-            IOrderBook(orderBook).priceDecimal(),
+            IOrderBook(orderBook).baseDecimal(),
             IOrderBook(orderBook).protocolFeeRate(),
             IOrderBook(orderBook).subsidyFeeRate(),
             reserveBase,
@@ -119,7 +119,7 @@ library HybridLibrary {
             IOrderBook(orderBook).rangeBook(OrderBookLibrary.LIMIT_BUY, price);
         uint[] memory params = new uint[](3);
         (params[0], params[1], params[2], params[3], params[4]) = (
-            IOrderBook(orderBook).priceDecimal(),
+            IOrderBook(orderBook).baseDecimal(),
             IOrderBook(orderBook).protocolFeeRate(), //considered get multiple parameters by one interface
             IOrderBook(orderBook).subsidyFeeRate(),
             reserveBase,
