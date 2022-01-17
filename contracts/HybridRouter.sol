@@ -66,7 +66,7 @@ contract HybridRouter is IHybridRouter {
         orderId = IOrderBook(orderBook).createBuyLimitOrder(msg.sender, price, to);
     }
 
-    //创建用ETH买BaseToken限价单 (eth -> uni)
+    //buy base token with eth (eth -> uni)
     function buyWithEth(
         uint price,
         address tokenA,
@@ -84,7 +84,6 @@ contract HybridRouter is IHybridRouter {
         require(orderBook != address(0), 'HybridRouter: Invalid_OrderBook');
         require(IOrderBook(orderBook).quoteToken() == WETH, 'HybirdRouter: Invalid_Token');
 
-        //挂单不能将eth存放在router下面，需要存在order book上，不然订单成交时没有资金来源
         IWETH(WETH).deposit{value: msg.value}();
         assert(IWETH(WETH).transfer(orderBook, msg.value));
 
@@ -92,7 +91,7 @@ contract HybridRouter is IHybridRouter {
         orderId = IOrderBook(orderBook).createBuyLimitOrder(msg.sender, price, to);
     }
 
-    //创建将baseToken卖为quoteToken限价单 (uni -> usdc)
+    //sell base token to quote token (uni -> usdc)
     function sellToken(
         uint amountOffer,
         uint price,
@@ -119,7 +118,7 @@ contract HybridRouter is IHybridRouter {
         orderId = IOrderBook(orderBook).createSellLimitOrder(msg.sender, price, to);
     }
 
-    //创建将ETH卖为quoteToken限价单 (eth -> usdc)
+    //sell eth to quote token (eth -> usdc)
     function sellEth(
         uint price,
         address tokenB,
@@ -137,7 +136,6 @@ contract HybridRouter is IHybridRouter {
         require(orderBook != address(0), 'HybridRouter: Invalid_OrderBook');
         require(WETH == IOrderBook(orderBook).baseToken(), 'HybridRouter: MisOrder_Path');
 
-        //挂单不能将eth存放在router下面，需要存在order book上，不然订单成交时没有资金来源
         IWETH(WETH).deposit{value: msg.value}();
         assert(IWETH(WETH).transfer(orderBook, msg.value));
 
@@ -172,7 +170,6 @@ contract HybridRouter is IHybridRouter {
         }
     }
 
-    //需要考虑初始价格到目标价格之间还有其它挂单的情况，需要考虑最小数量
     function getAmountsForSell(uint amountOffer, uint price, address tokenA, address tokenB)
     external
     virtual
@@ -192,7 +189,7 @@ contract HybridRouter is IHybridRouter {
         }
     }
 
-    //获取订单薄
+    //get order book information
     function getOrderBook(address tokenA, address tokenB, uint32 limitSize)
     external
     virtual

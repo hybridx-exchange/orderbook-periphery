@@ -101,8 +101,6 @@ contract HybridRouterTest is HybridRouter {
         uint reserveBase, uint reserveQuote, uint targetPrice, uint baseDecimal)
     external pure returns (uint amountLeft, uint amountAmmQuote, uint amountQuoteFix) {
         uint curPrice = getPrice(reserveBase, reserveQuote, baseDecimal);
-        //弥补精度损失造成的LP价格误差，将LP的价格提高一点，保证买单价格小于或等于LP价格
-        //y' = x.p2 - x.p1, x不变，增加y, 使用价格变大
         if (curPrice < targetPrice) {
             amountQuoteFix = (reserveBase.mul(targetPrice).div(10 ** baseDecimal)
             .sub(reserveBase.mul(curPrice).div(10 ** baseDecimal)));
@@ -119,8 +117,6 @@ contract HybridRouterTest is HybridRouter {
         uint reserveBase, uint reserveQuote, uint targetPrice, uint baseDecimal)
     external pure returns (uint amountLeft, uint amountAmmBase, uint amountBaseFix) {
         uint curPrice = getPrice(reserveBase, reserveQuote, baseDecimal);
-        //弥补精度损失造成的LP价格误差，将LP的价格降低一点，保证订单价格大于或等于LP价格
-        //x' = y/p1 - y/p2, y不变，增加x，使价格变小
         if (curPrice > targetPrice) {
             amountBaseFix = (reserveQuote.mul(10 ** baseDecimal).div(targetPrice)
             .sub(reserveQuote.mul(10 ** baseDecimal).div(curPrice)));
@@ -133,8 +129,6 @@ contract HybridRouterTest is HybridRouter {
         }
     }
 
-    //使用amountA数量的amountInOffer吃掉在价格price, 数量为amountOutOffer的tokenB, 返回实际消耗的tokenA数量和返回的tokenB的数量，amountOffer需要考虑手续费
-    //手续费应该包含在amountOutWithFee中
     function getAmountOutForTakePrice(uint tradeDir, uint amountInOffer, uint price, uint decimal, uint orderAmount)
     external pure returns (uint amountInUsed, uint amountOutWithFee, uint communityFee) {
         uint protocolFeeRate = 30;
