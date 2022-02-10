@@ -175,7 +175,7 @@ contract HybridRouter is IHybridRouter {
     virtual
     override
     view
-    returns (uint[] memory amounts) { //返回ammAmountIn, ammAmountOut, orderAmountIn, orderAmountOut
+    returns (uint[] memory amounts) { //ammAmountIn, ammAmountOut, orderAmountIn, orderAmountOut
         require(tokenA != tokenB, 'HybridRouter: Invalid_Path');
         address orderBook = IOrderBookFactory(factory).getOrderBook(tokenA, tokenB);
         if (orderBook != address(0)) {
