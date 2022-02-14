@@ -117,7 +117,7 @@ library HybridLibrary {
         //get buy limit orders within a price range
         (uint[] memory priceArray, uint[] memory amountArray) =
             IOrderBook(orderBook).rangeBook(OrderBookLibrary.LIMIT_BUY, price);
-        uint[] memory params = new uint[](3);
+        uint[] memory params = new uint[](5);
         (params[0], params[1], params[2], params[3], params[4]) = (
             IOrderBook(orderBook).baseDecimal(),
             IOrderBook(orderBook).protocolFeeRate(), //considered get multiple parameters by one interface
