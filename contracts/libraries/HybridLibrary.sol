@@ -16,8 +16,8 @@ library HybridLibrary {
     @param price                   price of limit order
     @param reserveBase             reserve amount of base token
     @param reserveQuote            reserve amount of quote token
-    @return amounts                [amm amount in, amm amount out, order amount in, order amount out,
-                                    order fee, amount left, price to]
+    @return amounts                [amm amount in, amm amount out, order amount in, order amount out with fee,
+                                    community fee, amount left, price to]
     **************************************************************************************************************/
     function getAmountsForBuyLimitOrder(
         address orderBook,
@@ -62,12 +62,13 @@ library HybridLibrary {
             }
 
             //Calculate the amount of quote required to consume a pending order at a price
-            (uint amountInForTake, uint amountOutWithFee, uint fee) = OrderBookLibrary.getAmountOutForTakePrice(
-                OrderBookLibrary.LIMIT_BUY, amountAmmLeft, priceArray[i], params[0], params[1], params[2],
-                    amountArray[i]);
+            (uint amountInForTake, uint amountOutWithFee, uint communityFee) =
+                OrderBookLibrary.getAmountOutForTakePrice(
+                    OrderBookLibrary.LIMIT_BUY, amountAmmLeft, priceArray[i],
+                    params[0], params[1], params[2], amountArray[i]);
             amounts[2] += amountInForTake;
-            amounts[3] += amountOutWithFee;
-            amounts[4] += fee;
+            amounts[3] += amountOutWithFee.sub(communityFee);
+            amounts[4] += communityFee;
             if (amountInForTake == amountAmmLeft) {
                 amounts[5] = 0; //avoid getAmountForMovePrice recalculation
                 break;
@@ -102,8 +103,8 @@ library HybridLibrary {
     @param price                   price of limit order
     @param reserveBase             reserve amount of base token
     @param reserveQuote            reserve amount of quote token
-    @return amounts                [amm amount in, amm amount out, order amount in, order amount out,
-                                    order fee, amount left, price to]
+    @return amounts                [amm amount in, amm amount out, order amount in, order amount out with fee,
+                                    community fee, amount left, price to]
     **************************************************************************************************************/
     function getAmountsForSellLimitOrder(
         address orderBook,
@@ -144,12 +145,13 @@ library HybridLibrary {
             }
 
             //Calculate the amount of base required to consume a pending order at a price
-            (uint amountInForTake, uint amountOutWithFee, uint fee) = OrderBookLibrary.getAmountOutForTakePrice(
-                OrderBookLibrary.LIMIT_SELL, amountAmmLeft, priceArray[i], params[0], params[1], params[2],
-                    amountArray[i]);
+            (uint amountInForTake, uint amountOutWithFee, uint communityFee) =
+                OrderBookLibrary.getAmountOutForTakePrice(
+                    OrderBookLibrary.LIMIT_SELL, amountAmmLeft, priceArray[i],
+                        params[0], params[1], params[2], amountArray[i]);
             amounts[2] += amountInForTake;
-            amounts[3] += amountOutWithFee;
-            amounts[4] += fee;
+            amounts[3] += amountOutWithFee.sub(communityFee);
+            amounts[4] += communityFee;
             amounts[5] = amounts[5].sub(amountInForTake);
             if (amountInForTake == amountAmmLeft) {
                 amounts[5] = 0; //avoid getAmountForMovePrice recalculation
