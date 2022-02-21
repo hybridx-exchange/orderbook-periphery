@@ -215,10 +215,10 @@
     "@ethersproject/properties" "^5.5.0"
     "@ethersproject/strings" "^5.5.0"
 
-"@hybridx-exchange/orderbook-core@0.1.35":
-  version "0.1.35"
-  resolved "https://registry.yarnpkg.com/@hybridx-exchange/orderbook-core/-/orderbook-core-0.1.35.tgz#7ac01416f305e1a6081ce05c27b1aa7b25d6c0e7"
-  integrity sha512-y+Or6wDIbbGBYTIFqNEewVFPc27zKR8Z8mVzshIvAiBkfuOCwdSWilvTM/XRHK8lfbS6C0BtZsEHyoIAERKOkQ==
+"@hybridx-exchange/orderbook-core@0.1.36":
+  version "0.1.36"
+  resolved "https://registry.yarnpkg.com/@hybridx-exchange/orderbook-core/-/orderbook-core-0.1.36.tgz#32ba73f6d9db1d3a4ce9bcd188046a92dd63013b"
+  integrity sha512-F8dm+xoGyNVDQY74HfMr6qr10MpCTIu4IqlsoT2PDzrT8NH24dlXT2GMfdRy6vcgGjq6aQJUvD3ILhm7mz/NpA==
 
 "@hybridx-exchange/v2-core@0.1.7":
   version "0.1.7"
