@@ -28,10 +28,6 @@ contract HybridRouter is IHybridRouter {
         WETH = _WETH;
     }
 
-    receive() external payable {
-        assert(msg.sender == WETH); // only accept ETH via fallback from the WETH contract
-    }
-
     /**************************************************************************************************************
     @param amountOffer             amount offered for limit order
     @param price                   price of limit order
