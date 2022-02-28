@@ -31,6 +31,7 @@
     "ts-node": "^8.5.4",
     "typescript": "^3.7.3",
     "@hybridx-exchange/v2-core": "v1.0.0",
+    "@hybridx-exchange/v2-periphery": "v1.0.0",
     "@hybridx-exchange/orderbook-core": "v1.0.0"
   },
   "scripts": {

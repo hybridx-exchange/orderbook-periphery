@@ -12,6 +12,7 @@ import OrderBook from '@hybridx-exchange/orderbook-core/build/OrderBook.json'
 import WETH from '@hybridx-exchange/orderbook-core/build/WETH9.json'
 import HybridRouter from '../../build/HybridRouterTest.json'
 import {bigNumberify} from "ethers/utils";
+import UniswapV2Router02 from '@hybridx-exchange/v2-periphery/build/UniswapV2Router02.json'
 
 interface FactoryFixture {
   tokenA: Contract
@@ -19,6 +20,7 @@ interface FactoryFixture {
   factory: Contract
   orderBookFactory: Contract
   router: Contract
+  router02: Contract
 }
 
 const overrides = {
@@ -32,7 +34,8 @@ export async function factoryFixture(_: Web3Provider, [wallet]: Wallet[]): Promi
   const weth = await deployContract(wallet, WETH, [], overrides)
   const orderBookFactory = await deployContract(wallet, OrderBookFactory, [factory.address, weth.address], overrides)
   const router = await deployContract(wallet, HybridRouter, [orderBookFactory.address, weth.address], overrides);
-  return { tokenA, tokenB, factory, orderBookFactory, router }
+  const router02 = await deployContract(wallet, UniswapV2Router02, [factory.address, weth.address], overrides)
+  return { tokenA, tokenB, factory, orderBookFactory, router, router02 }
 }
 
 interface PairFixture extends FactoryFixture {
@@ -48,7 +51,7 @@ interface OrderBookFixture extends PairFixture {
 }
 
 export async function orderBookFixture(provider: Web3Provider, [wallet]: Wallet[]): Promise<OrderBookFixture> {
-  const { tokenA, tokenB, factory, orderBookFactory, router } = await factoryFixture(provider, [wallet])
+  const { tokenA, tokenB, factory, orderBookFactory, router, router02 } = await factoryFixture(provider, [wallet])
 
   await factory.createPair(tokenA.address, tokenB.address, overrides)
   const pairAddress = await factory.getPair(tokenA.address, tokenB.address)
@@ -72,5 +75,5 @@ export async function orderBookFixture(provider: Web3Provider, [wallet]: Wallet[
   await token1.transfer(pair.address, token1Amount)
   await pair.mint(wallet.address, overrides)
 
-  return { factory, orderBookFactory, token0, token1, pair, baseToken, quoteToken, orderBook, tokenA, tokenB, router }
+  return { factory, orderBookFactory, token0, token1, pair, baseToken, quoteToken, orderBook, tokenA, tokenB, router, router02 }
 }
