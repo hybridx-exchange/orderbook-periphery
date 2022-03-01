@@ -62,22 +62,22 @@ describe('HybridxOrderBook', () => {
     async function pairInfo() {
         // balance
         let pairTokenBase = await tokenBase.balanceOf(pair.address)
-        console.log('pair Base tokenA balance：', pairTokenBase.toString())
+        console.log('pair Base tokenA balance:', pairTokenBase.toString())
 
         let pairTokenQuote = await tokenQuote.balanceOf(pair.address)
-        console.log('pair Quote tokenB balance：', pairTokenQuote.toString())
+        console.log('pair Quote tokenB balance:', pairTokenQuote.toString())
 
         // K
         let [reserve0, reserve1] = await pair.getReserves()
         let k = reserve0 * reserve1
-        console.log('pair K：', k.toString())
+        console.log('pair K:', k.toString())
 
-        // 价格
+        // price
         let pairPrice = reserve1 / reserve0
-        console.log('pair price：', pairPrice.toString())
+        console.log('pair price:', pairPrice.toString())
 
         let pairPriceLibrary = await orderBook.getPrice()
-        console.log('pair price Library：', pairPriceLibrary.toString())
+        console.log('pair price Library:', pairPriceLibrary.toString())
     }
 
     async function getUserOrders(walletName: string) {
@@ -105,7 +105,7 @@ describe('HybridxOrderBook', () => {
 
         let i = 1
         for (const o of num) {
-            console.log(walletName + ' orders：', i++)
+            console.log(walletName + ' orders:', i++)
 
             let [a, b, c, d, e, f, g, h] = await orderBook.marketOrder(o)
             console.log('o.owner:', a.toString())
@@ -120,53 +120,51 @@ describe('HybridxOrderBook', () => {
     }
 
     async function balancePrint() {
-        // pair余额
+        // pair balance
         let pairToken0Balance = await token0.balanceOf(pair.address)
         let pairToken1Balance = await token1.balanceOf(pair.address)
-        console.log('pairToken0 balance：', pairToken0Balance.toString())
-        console.log('pairToken1 balance：', pairToken1Balance.toString())
+        console.log('pairToken0 balance:', pairToken0Balance.toString())
+        console.log('pairToken1 balance:', pairToken1Balance.toString())
 
-        // orderBook配置
+        // orderBook
         let baseBalance = await orderBook.baseBalance();
-        console.log('orderBook baseBalance：', baseBalance.toString())
+        console.log('orderBook baseBalance:', baseBalance.toString())
 
         let quoteBalance = await orderBook.quoteBalance();
-        console.log('orderBook quoteBalance：', quoteBalance.toString())
+        console.log('orderBook quoteBalance:', quoteBalance.toString())
 
         let baseBalanceERC20 = await tokenBase.balanceOf(orderBook.address)
-        console.log('orderBook baseBalance ERC20：', baseBalanceERC20.toString())
+        console.log('orderBook baseBalance ERC20:', baseBalanceERC20.toString())
 
         let quoteBalanceERC20 = await tokenQuote.balanceOf(orderBook.address);
-        console.log('orderBook quoteBalance ERC20：', quoteBalanceERC20.toString())
+        console.log('orderBook quoteBalance ERC20:', quoteBalanceERC20.toString())
 
         let minAmount = await orderBook.minAmount();
-        console.log('orderBook minAmount：', minAmount.toString())
+        console.log('orderBook minAmount:', minAmount.toString())
 
         let priceStep = await orderBook.priceStep();
-        console.log('orderBook priceStep：', priceStep.toString())
+        console.log('orderBook priceStep:', priceStep.toString())
 
-        // 钱包余额
         let tokenBaseBalance = await tokenBase.balanceOf(wallet.address)
         let tokenQuoteBalance = await tokenQuote.balanceOf(wallet.address)
         console.log('wallet tokenBase Balance:', tokenBaseBalance.toString())
         console.log('wallet tokenQuote Balance:', tokenQuoteBalance.toString())
     }
 
-    it('createLimitOrder：require', async () => {
-        let limitAmount = expandTo18Decimals(1) // 转账金额
-        let limitPrice = expandTo18Decimals(0) // 下单价格
+    it('createLimitOrder:require', async () => {
+        let limitAmount = expandTo18Decimals(1)
+        let limitPrice = expandTo18Decimals(0)
 
-        await tokenQuote.approve(hybridRouter.address, MaxUint256) // 授权合约使用token
+        await tokenQuote.approve(hybridRouter.address, MaxUint256)
         await expect(hybridRouter.buyWithToken(limitAmount, limitPrice, tokenBase.address, tokenQuote.address, wallet.address, MaxUint256, overrides))
             .to.be.revertedWith('Price Invalid')
 
-        await tokenBase.approve(hybridRouter.address, MaxUint256) // 授权合约使用token
+        await tokenBase.approve(hybridRouter.address, MaxUint256)
         await expect(hybridRouter.sellToken(limitAmount, limitPrice, tokenBase.address, tokenQuote.address, wallet.address, MaxUint256, overrides))
             .to.be.revertedWith('Price Invalid')
     })
 
-    // 挂买单
-    it('createBuyLimitOrder：', async () => {
+    it('createBuyLimitOrder:', async () => {
         let limitAmount = expandTo18Decimals(1)
         let limitPrice = expandTo18Decimals(1)
 
@@ -176,20 +174,19 @@ describe('HybridxOrderBook', () => {
             .to.emit(orderBook, "OrderCreated").withArgs(wallet.address, wallet.address, limitAmount, limitAmount, limitPrice, LIMIT_BUY)
     })
 
-    // 挂买单 - 卖单吃单
-    it('createBuyLimitOrder：move price Sell', async () => {
-        let limitAmount = expandTo18Decimals(1) // 转账金额
-        let limitPrice = expandTo18Decimals(1) // 下单价格
+    it('createBuyLimitOrder:move price Sell', async () => {
+        let limitAmount = expandTo18Decimals(1)
+        let limitPrice = expandTo18Decimals(1)
 
-        await tokenQuote.approve(hybridRouter.address, MaxUint256) // 授权合约使用token
+        await tokenQuote.approve(hybridRouter.address, MaxUint256)
         await expect(hybridRouter.buyWithToken(limitAmount, limitPrice, tokenBase.address, tokenQuote.address, wallet.address, MaxUint256, overrides))
             .to.emit(tokenQuote, "Transfer").withArgs(wallet.address, orderBook.address, limitAmount)
             .to.emit(orderBook, "OrderCreated").withArgs(wallet.address, wallet.address, limitAmount, limitAmount, limitPrice, LIMIT_BUY)
 
 
-        limitPrice = expandTo18Decimals(2) // 下单价格
+        limitPrice = expandTo18Decimals(2)
 
-        await tokenBase.approve(hybridRouter.address, MaxUint256) // 授权合约使用token
+        await tokenBase.approve(hybridRouter.address, MaxUint256)
         await expect(hybridRouter.sellToken(limitAmount, limitPrice, tokenBase.address, tokenQuote.address, wallet.address, MaxUint256, overrides))
             .to.emit(tokenBase, "Transfer").withArgs(wallet.address, orderBook.address, limitAmount)
             .to.emit(orderBook, "OrderCreated").withArgs(wallet.address, wallet.address, limitAmount, limitAmount, limitPrice, LIMIT_SELL)
@@ -198,8 +195,7 @@ describe('HybridxOrderBook', () => {
         await balancePrint()
     })
 
-    // 挂买单 - swap吃单 ：吃一部分
-    it('createBuyLimitOrder：move some price swap', async () => {
+    it('createBuyLimitOrder:move some price swap', async () => {
         let limitAmount = expandTo18Decimals(3)
         let limitPrice = expandTo18Decimals(2)
 
@@ -208,7 +204,7 @@ describe('HybridxOrderBook', () => {
             .to.emit(tokenQuote, "Transfer").withArgs(wallet.address, orderBook.address, limitAmount)
             .to.emit(orderBook, "OrderCreated").withArgs(wallet.address, wallet.address, limitAmount, limitAmount, limitPrice, LIMIT_BUY)
 
-        const swapAmount = expandTo18Decimals(1) // 兑换额
+        const swapAmount = expandTo18Decimals(1)
         const path = [tokenBase.address, tokenQuote.address]
         const [out1, out2] = await router.getAmountsOut(swapAmount, path)
         console.log("tokenBaseAmountOut : ", out1.toString())
@@ -222,8 +218,7 @@ describe('HybridxOrderBook', () => {
         await getUserOrders('wallet')
     })
 
-    // 挂买单 - swap吃单 ：全吃
-    it('createBuyLimitOrder：move all price swap', async () => {
+    it('createBuyLimitOrder:move all price swap', async () => {
         let limitAmount = expandTo18Decimals(1)
         let limitPrice = expandTo18Decimals(2)
 
@@ -232,7 +227,7 @@ describe('HybridxOrderBook', () => {
             .to.emit(tokenQuote, "Transfer").withArgs(wallet.address, orderBook.address, limitAmount)
             .to.emit(orderBook, "OrderCreated").withArgs(wallet.address, wallet.address, limitAmount, limitAmount, limitPrice, LIMIT_BUY)
 
-        const swapAmount = expandTo18Decimals(5) // 兑换额
+        const swapAmount = expandTo18Decimals(5)
         const path = [tokenBase.address, tokenQuote.address]
         const [out1, out2] = await router.getAmountsOut(swapAmount, path)
         console.log("tokenBaseAmountOut : ", out1.toString())
@@ -246,53 +241,48 @@ describe('HybridxOrderBook', () => {
         await getUserOrders('wallet')
     })
 
-    // 挂卖单
-    it('createSellLimitOrder：', async () => {
-        let limitAmount = expandTo18Decimals(1) // 转账金额
-        let limitPrice = expandTo18Decimals(2) // 下单价格
+    it('createSellLimitOrder:', async () => {
+        let limitAmount = expandTo18Decimals(1)
+        let limitPrice = expandTo18Decimals(2)
 
-        await tokenBase.approve(hybridRouter.address, MaxUint256) // 授权合约使用token
+        await tokenBase.approve(hybridRouter.address, MaxUint256)
         await expect(hybridRouter.sellToken(limitAmount, limitPrice, tokenBase.address, tokenQuote.address, wallet.address, MaxUint256, overrides))
             .to.emit(tokenBase, "Transfer").withArgs(wallet.address, orderBook.address, limitAmount)
             .to.emit(orderBook, "OrderCreated").withArgs(wallet.address, wallet.address, limitAmount, limitAmount, limitPrice, LIMIT_SELL)
     })
 
-    // 挂卖单 - 买单吃单
-    it('createSellLimitOrder：move price Buy', async () => {
-        let limitAmount = expandTo18Decimals(1) // 转账金额
-        let limitPrice = expandTo18Decimals(2) // 下单价格
+    it('createSellLimitOrder:move price Buy', async () => {
+        let limitAmount = expandTo18Decimals(1)
+        let limitPrice = expandTo18Decimals(2)
 
-        await tokenBase.approve(hybridRouter.address, MaxUint256) // 授权合约使用token
+        await tokenBase.approve(hybridRouter.address, MaxUint256)
         await expect(hybridRouter.sellToken(limitAmount, limitPrice, tokenBase.address, tokenQuote.address, wallet.address, MaxUint256, overrides))
             .to.emit(tokenBase, "Transfer").withArgs(wallet.address, orderBook.address, limitAmount)
             .to.emit(orderBook, "OrderCreated").withArgs(wallet.address, wallet.address, limitAmount, limitAmount, limitPrice, LIMIT_SELL)
 
         limitPrice = expandTo18Decimals(1)
-        await tokenQuote.approve(hybridRouter.address, MaxUint256) // 授权合约使用token
+        await tokenQuote.approve(hybridRouter.address, MaxUint256)
         await expect(hybridRouter.buyWithToken(limitAmount, limitPrice, tokenBase.address, tokenQuote.address, wallet.address, MaxUint256, overrides))
             .to.emit(tokenQuote, "Transfer").withArgs(wallet.address, orderBook.address, limitAmount)
             .to.emit(orderBook, "OrderCreated").withArgs(wallet.address, wallet.address, limitAmount, limitAmount, limitPrice, LIMIT_BUY)
     })
 
-    // 挂卖单 - swap吃单 ：吃一部分
-    it('createSellLimitOrder：move some price swap', async () => {
-        let limitAmount = expandTo18Decimals(3) // 转账金额
-        let limitPrice = expandTo18Decimals(2) // 下单价格
+    it('createSellLimitOrder:move some price swap', async () => {
+        let limitAmount = expandTo18Decimals(3)
+        let limitPrice = expandTo18Decimals(2)
 
-        await tokenBase.approve(hybridRouter.address, MaxUint256) // 授权合约使用token
+        await tokenBase.approve(hybridRouter.address, MaxUint256)
         await expect(hybridRouter.sellToken(limitAmount, limitPrice, tokenBase.address, tokenQuote.address, wallet.address, MaxUint256, overrides))
             .to.emit(tokenBase, "Transfer").withArgs(wallet.address, orderBook.address, limitAmount)
             .to.emit(orderBook, "OrderCreated").withArgs(wallet.address, wallet.address, limitAmount, limitAmount, limitPrice, LIMIT_SELL)
 
-        const swapAmount = expandTo18Decimals(2) // 兑换额
-        const expectedOutputAmount = bigNumberify('1662497915624478906') // 预计输出
+        const swapAmount = expandTo18Decimals(2)
 
         const path = [tokenBase.address, tokenQuote.address]
         const [out1, out2] = await router.getAmountsOut(swapAmount, path)
-        console.log("tokenBaseAmountOut : " , out1.toString())
-        console.log("tokenQuoteAmountOut: " , out2.toString())
+        console.log("tokenBaseAmountOut : ", out1.toString())
+        console.log("tokenQuoteAmountOut: ", out2.toString())
 
-        // ['997000000000000000', 10, 5, 1],
         await tokenQuote.transfer(pair.address, swapAmount)
         await pair.swap(out2, 0, wallet.address, '0x', overrides)
 
@@ -301,25 +291,22 @@ describe('HybridxOrderBook', () => {
         await getUserOrders('wallet')
     })
 
-    // 挂卖单 - swap吃单 : 全吃
-    it('createBuyLimitOrder：move all price swap', async () => {
-        let limitAmount = expandTo18Decimals(1) // 转账金额
-        let limitPrice = expandTo18Decimals(2) // 下单价格
+    it('createBuyLimitOrder:move all price swap', async () => {
+        let limitAmount = expandTo18Decimals(1)
+        let limitPrice = expandTo18Decimals(2)
 
         await tokenBase.approve(hybridRouter.address, MaxUint256) // 授权合约使用token
         await expect(hybridRouter.sellToken(limitAmount, limitPrice, tokenBase.address, tokenQuote.address, wallet.address, MaxUint256, overrides))
             .to.emit(tokenBase, "Transfer").withArgs(wallet.address, orderBook.address, limitAmount)
             .to.emit(orderBook, "OrderCreated").withArgs(wallet.address, wallet.address, limitAmount, limitAmount, limitPrice, LIMIT_SELL)
 
-        const swapAmount = expandTo18Decimals(2) // 兑换额
-        const expectedOutputAmount = bigNumberify('1662497915624478906') // 预计输出
+        const swapAmount = expandTo18Decimals(2)
 
         const path = [tokenBase.address, tokenQuote.address]
         const [out1, out2] = await router.getAmountsOut(swapAmount, path)
-        console.log("tokenBaseAmountOut : " , out1.toString())
-        console.log("tokenQuoteAmountOut: " , out2.toString())
+        console.log("tokenBaseAmountOut : ", out1.toString())
+        console.log("tokenQuoteAmountOut: ", out2.toString())
 
-        // ['997000000000000000', 10, 5, 1],
         await tokenQuote.transfer(pair.address, swapAmount)
         await pair.swap(out2, 0, wallet.address, '0x', overrides)
 
@@ -397,8 +384,7 @@ describe('HybridxOrderBook', () => {
         if (print) await getUserOrders(walletName)
     }
 
-    // 多钱包操作 - 挂多个价格买单
-    it('createBuyLimitOrder：multiple wallet', async () => {
+    it('createBuyLimitOrder:multiple wallet', async () => {
         await walletCreateOrder('other', 1, 2, LIMIT_BUY, true, true)
         await walletCreateOrder('other', 2, 2, LIMIT_BUY, true, true)
         await walletCreateOrder('other', 1, 1, LIMIT_BUY, true, true)
@@ -407,8 +393,7 @@ describe('HybridxOrderBook', () => {
         await walletCreateOrder('five', 1, 2, LIMIT_BUY, true, true)
     })
 
-    // 多钱包操作 - 挂多个价格买单，多个价格卖单吃单
-    it('createBuyLimitOrder：multiple wallet move price SELL', async () => {
+    it('createBuyLimitOrder:multiple wallet move price SELL', async () => {
         await walletCreateOrder('other', 1, 1, LIMIT_BUY, true, false)
         await walletCreateOrder('other', 1, 2, LIMIT_BUY, false, false)
         await walletCreateOrder('other', 2, 2, LIMIT_BUY, false, false)
@@ -417,7 +402,7 @@ describe('HybridxOrderBook', () => {
         // ['other', 1, 2, LIMIT_SELL, false, false]
         let limitAmount = expandTo18Decimals(2)
         let limitPrice = expandTo18Decimals(2)
-        let expectAmountRemain = bigNumberify('504500000000000000') // 被吃 1 - 501500000000000000 = 498500000000000000
+        let expectAmountRemain = bigNumberify('504500000000000000')
         await tokenBase.connect(other).approve(hybridRouter.address, MaxUint256)
         await expect(hybridRouter.connect(other).sellToken(limitAmount, limitPrice, tokenBase.address, tokenQuote.address, other.address, MaxUint256, overrides))
             .to.emit(tokenBase, "Transfer").withArgs(other.address, orderBook.address, limitAmount)
@@ -426,7 +411,7 @@ describe('HybridxOrderBook', () => {
         // ['five', 2, 2, LIMIT_SELL, false, false]
         limitAmount = expandTo18Decimals(10)
         limitPrice = expandTo18Decimals(1)
-        expectAmountRemain = bigNumberify('1943820234006285947') // 被吃 1 - 2000000000000000000 = 0 ？？
+        expectAmountRemain = bigNumberify('1943820234006285947')
         await transferToFive()
         await tokenBase.connect(five).approve(hybridRouter.address, MaxUint256)
         await expect(hybridRouter.connect(five).sellToken(limitAmount, limitPrice, tokenBase.address, tokenQuote.address, five.address, MaxUint256, overrides))
@@ -436,7 +421,7 @@ describe('HybridxOrderBook', () => {
         // ['other', 1, 2, LIMIT_SELL, false, false]
         limitAmount = expandTo18Decimals(1)
         limitPrice = expandTo18Decimals(2)
-        expectAmountRemain = bigNumberify('1000000000000000000') // 被吃 1 - 501500000000000000 = 498500000000000000
+        expectAmountRemain = bigNumberify('1000000000000000000')
         await tokenBase.connect(five).approve(hybridRouter.address, MaxUint256)
         await expect(hybridRouter.connect(five).sellToken(limitAmount, limitPrice, tokenBase.address, tokenQuote.address, five.address, MaxUint256, overrides))
             .to.emit(tokenBase, "Transfer").withArgs(five.address, orderBook.address, limitAmount)
