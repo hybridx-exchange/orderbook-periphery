@@ -225,6 +225,13 @@
   resolved "https://registry.yarnpkg.com/@hybridx-exchange/v2-core/-/v2-core-0.2.0.tgz#7e2bf3ec721435db6f396aba8f4357c72ea90c22"
   integrity sha512-YXDTfXUjV2cXvEy+qLFtvoCI6515lJCjAFdxzz9LLIbkvslumjVV7NwDhYwe+EeAR9fpLiSjmVqq6VYMghk8nw==
 
+"@hybridx-exchange/v2-periphery@0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@hybridx-exchange/v2-periphery/-/v2-periphery-0.2.1.tgz#b467067d9fd60f16426fb3c05468d4bdb32c587b"
+  integrity sha512-+QzFkPbK+xwbAnq8fAzXM7LaIN/ikGdnCvNLhkWRbNuV27+QHGfXhgEh0IjTt3H7nFoky/r/q0UbEeCyKP5JqA==
+  dependencies:
+    "@uniswap/lib" "4.0.1-alpha"
+
 "@resolver-engine/core@^0.3.3":
   version "0.3.3"
   resolved "https://registry.yarnpkg.com/@resolver-engine/core/-/core-0.3.3.tgz#590f77d85d45bc7ecc4e06c654f41345db6ca967"

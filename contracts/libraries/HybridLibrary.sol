@@ -17,7 +17,7 @@ library HybridLibrary {
     @param reserveBase             reserve amount of base token
     @param reserveQuote            reserve amount of quote token
     @return amounts                [amm amount in, amm amount out, order amount in, order amount out with fee,
-                                    community fee, amount left, price to]
+                                    community fee, amount left, amount expert, price to]
     **************************************************************************************************************/
     function getAmountsForBuyLimitOrder(
         address orderBook,
@@ -39,7 +39,7 @@ library HybridLibrary {
             IOrderBook(orderBook).subsidyFeeRate(),
             reserveBase,
             reserveQuote);
-        amounts = new uint[](7);
+        amounts = new uint[](8);
         amounts[5] = amountOffer;
 
         //See if it is necessary to take orders
@@ -90,11 +90,13 @@ library HybridLibrary {
             (amounts[5], amounts[0], amountQuoteFix) =
                 OrderBookLibrary.getFixAmountForMovePriceUp(amounts[5], amounts[0], params[3], params[4],
                     price, params[0]);
-            amounts[6] = OrderBookLibrary.getPrice(params[3], params[4] + amountQuoteFix, params[0]);
+            amounts[7] = OrderBookLibrary.getPrice(params[3], params[4] + amountQuoteFix, params[0]);
         }
         else {
-            amounts[6] = OrderBookLibrary.getPrice(params[3], params[4], params[0]);
+            amounts[7] = OrderBookLibrary.getPrice(params[3], params[4], params[0]);
         }
+
+        amounts[6] = amounts[5].mul(10000-params[1]).mul(10 ** params[0]).div(price).div(10000);
     }
 
     /**************************************************************************************************************
@@ -104,7 +106,7 @@ library HybridLibrary {
     @param reserveBase             reserve amount of base token
     @param reserveQuote            reserve amount of quote token
     @return amounts                [amm amount in, amm amount out, order amount in, order amount out with fee,
-                                    community fee, amount left, price to]
+                                    community fee, amount left, amount expect, price to]
     **************************************************************************************************************/
     function getAmountsForSellLimitOrder(
         address orderBook,
@@ -125,7 +127,7 @@ library HybridLibrary {
             IOrderBook(orderBook).subsidyFeeRate(),
             reserveBase,
             reserveQuote);
-        amounts = new uint[](7);
+        amounts = new uint[](8);
         amounts[5] = amountOffer;
 
         //See if it is necessary to take orders
@@ -174,10 +176,12 @@ library HybridLibrary {
             (amounts[5], amounts[0], amountBaseFix) =
             OrderBookLibrary.getFixAmountForMovePriceDown(amounts[5], amounts[0], params[3], params[4],
                 price, params[0]);
-            amounts[6] = OrderBookLibrary.getPrice(params[3] + amountBaseFix, params[4], params[0]);
+            amounts[7] = OrderBookLibrary.getPrice(params[3] + amountBaseFix, params[4], params[0]);
         }
         else {
-            amounts[6] = OrderBookLibrary.getPrice(params[3], params[4], params[0]);
+            amounts[7] = OrderBookLibrary.getPrice(params[3], params[4], params[0]);
         }
+
+        amounts[6] = amounts[5].mul(10000-params[1]).mul(price).div(10000).div(10 ** params[0]);
     }
 }
