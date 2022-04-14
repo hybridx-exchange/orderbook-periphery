@@ -1,6 +1,6 @@
 {
   "name": "@hybridx-exchange/orderbook-periphery",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "🎚 Peripheral smart contracts for interacting with hybridx-exchange",
   "engines": {
     "node": ">=10"

@@ -70,4 +70,5 @@ interface IHybridRouter {
     returns
     (uint price, uint[] memory buyPrices, uint[] memory buyAmounts, uint[] memory sellPrices, uint[] memory
         sellAmounts);
+    function setMinAmountAndPriceStep(address tokenA, address tokenB, uint minAmount, uint priceStep) external;
 }
