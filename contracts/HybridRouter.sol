@@ -202,4 +202,17 @@ contract HybridRouter is IHybridRouter {
             (sellPrices, sellAmounts) = IOrderBook(orderBook).marketBook(OrderBookLibrary.LIMIT_SELL, limitSize);
         }
     }
+
+    //set minAmount and priceStep
+    function setMinAmountAndPriceStep(address tokenA, address tokenB, uint minAmount, uint priceStep)
+    external
+    virtual
+    override
+    {
+        require(tokenA != tokenB, 'HybridRouter: Invalid_Path');
+        address orderBook = IOrderBookFactory(factory).getOrderBook(tokenA, tokenB);
+        require(orderBook != address(0), 'HybridRouter: OrderBook_Not_Exist');
+        if (minAmount >= 1) IOrderBook(orderBook).minAmountUpdate(minAmount);
+        if (priceStep >= 1) IOrderBook(orderBook).priceStepUpdate(priceStep);
+    }
 }
