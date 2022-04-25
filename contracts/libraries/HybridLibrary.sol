@@ -73,6 +73,7 @@ library HybridLibrary {
                 amounts[5] = 0; //avoid getAmountForMovePrice recalculation
                 break;
             }
+            amounts[5] = amounts[5].sub(amountInForTake);
         }
 
         if (amounts[5] > 0 && (priceArray.length == 0 || price > priceArray[priceArray.length-1])) {
@@ -154,11 +155,11 @@ library HybridLibrary {
             amounts[2] += amountInForTake;
             amounts[3] += amountOutWithFee.sub(communityFee);
             amounts[4] += communityFee;
-            amounts[5] = amounts[5].sub(amountInForTake);
             if (amountInForTake == amountAmmLeft) {
                 amounts[5] = 0; //avoid getAmountForMovePrice recalculation
                 break;
             }
+            amounts[5] = amounts[5].sub(amountInForTake);
         }
 
         if (amounts[5] > 0 && (priceArray.length == 0 || price < priceArray[priceArray.length-1])){
